@@ -3,1424 +3,907 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Concrete Pro — Estimator & Invoice Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Concrete Calculator & Invoice</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap"
         rel="stylesheet">
+
     <style>
         :root {
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --border: #e2e8f0;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-card: #192237;
+            --border: rgba(255, 255, 255, 0.08);
             --border-focus: #3b82f6;
-            --text: #0f172a;
-            --text-muted: #64748b;
-            --primary: #1e293b;
-            --primary-light: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
             --accent: #2563eb;
             --accent-hover: #1d4ed8;
-            --accent-soft: #eff6ff;
+            --success: #10b981;
             --danger: #ef4444;
-            --danger-soft: #fef2f2;
-            --success: #16a34a;
-            --success-soft: #f0fdf4;
-            --amber: #f59e0b;
-            --radius-sm: 6px;
-            --radius-md: 10px;
-            --radius-lg: 14px;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
             --font-mono: 'JetBrains Mono', monospace;
+            --radius: 12px;
+            --radius-sm: 8px;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
             background: var(--bg);
             color: var(--text);
-            line-height: 1.5;
-            padding-bottom: 120px;
+            line-height: 1.4;
+            padding-bottom: 110px;
         }
 
-        /* Navbar / Header */
-        .navbar {
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border);
+        /* Mobile Header */
+        .top-bar {
             position: sticky;
             top: 0;
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             z-index: 40;
         }
 
-        .nav-inner {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 14px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .brand-icon {
-            background: var(--accent);
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-md);
-            display: grid;
-            place-items: center;
+        .brand-title {
+            font-size: 1.05rem;
             font-weight: 800;
-            font-size: 1.2rem;
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
-        }
-
-        .brand h1 {
-            font-size: 1.15rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            color: var(--primary);
-        }
-
-        .brand p {
-            font-size: 0.78rem;
-            color: var(--text-muted);
-        }
-
-        .nav-tabs {
-            display: flex;
-            background: #f1f5f9;
-            padding: 4px;
-            border-radius: var(--radius-md);
-            gap: 4px;
-        }
-
-        .tab-btn {
-            padding: 8px 16px;
-            border-radius: var(--radius-sm);
-            border: none;
-            background: transparent;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .tab-btn.active {
-            background: #fff;
             color: var(--text);
-            box-shadow: var(--shadow-sm);
         }
 
-        .nav-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .brand-sub {
+            font-size: 0.72rem;
+            color: var(--text-muted);
         }
 
         /* Container */
-        .main-wrap {
-            max-width: 1200px;
-            margin: 24px auto;
-            padding: 0 20px;
+        .app-wrap {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 12px;
         }
 
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-size: 0.85rem;
+        /* Segmented Tab Switcher */
+        .tab-pills {
+            display: flex;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 3px;
+            border-radius: var(--radius);
+            margin-bottom: 14px;
+            gap: 3px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px;
+            font-size: 0.82rem;
             font-weight: 600;
-            padding: 8px 14px;
+            color: var(--text-muted);
+            border: none;
+            background: transparent;
             border-radius: var(--radius-sm);
-            border: 1px solid transparent;
             cursor: pointer;
-            transition: all 0.15s ease-in-out;
-            text-decoration: none;
         }
 
-        .btn-primary {
+        .tab-btn.active {
             background: var(--accent);
             color: #fff;
-            box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
         }
 
-        .btn-primary:hover {
-            background: var(--accent-hover);
-        }
-
-        .btn-secondary {
-            background: #fff;
-            color: var(--text);
-            border-color: var(--border);
-        }
-
-        .btn-secondary:hover {
-            background: #f8fafc;
-            border-color: #cbd5e1;
-        }
-
-        .btn-danger-subtle {
-            background: var(--danger-soft);
-            color: var(--danger);
-            border: 1px solid #fecaca;
-        }
-
-        .btn-danger-subtle:hover {
-            background: #fee2e2;
-        }
-
-        .btn-sm {
-            padding: 4px 10px;
-            font-size: 0.78rem;
-        }
-
-        /* Cards */
+        /* Card Wrapper */
         .card {
-            background: var(--card-bg);
+            background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 22px;
-            margin-bottom: 24px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 14px;
-            border-bottom: 1px solid #f1f5f9;
-            margin-bottom: 18px;
+            border-radius: var(--radius);
+            padding: 14px;
+            margin-bottom: 14px;
         }
 
         .card-title {
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             font-weight: 700;
-            color: var(--primary);
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: space-between;
+            margin-bottom: 10px;
         }
 
-        /* Grid for Meta details */
-        .meta-grid {
+        /* Form Fields */
+        .form-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-            gap: 16px;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
         }
 
-        .form-group {
+        .field-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
         }
 
-        .form-group label {
-            font-size: 0.78rem;
+        .field-group label {
+            font-size: 0.72rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
             color: var(--text-muted);
         }
 
         input[type="text"],
-        input[type="date"],
         input[type="number"],
+        input[type="date"],
         select {
-            padding: 9px 12px;
-            font-size: 0.9rem;
+            width: 100%;
+            height: 42px;
+            padding: 0 10px;
+            background: rgba(0, 0, 0, 0.25);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
-            background: #fff;
             color: var(--text);
+            font-size: 0.9rem;
+            font-family: inherit;
             outline: none;
-            transition: all 0.2s;
         }
 
         input:focus,
         select:focus {
             border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
         }
 
-        /* Tables */
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            background: #fff;
-            margin: 10px 0 16px 0;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.86rem;
-            text-align: left;
-        }
-
-        th {
-            background: #f8fafc;
-            padding: 10px 12px;
+        /* Buttons */
+        .btn {
+            height: 38px;
+            padding: 0 12px;
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
             font-weight: 600;
-            font-size: 0.78rem;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: var(--text-muted);
-            border-bottom: 1px solid var(--border);
-            white-space: nowrap;
-        }
-
-        td {
-            padding: 8px 12px;
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover td {
-            background: #fafbfc;
-        }
-
-        .col-mono {
-            font-family: var(--font-mono);
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .badge-blue {
-            background: var(--accent-soft);
-            color: var(--accent);
-        }
-
-        .badge-slate {
-            background: #f1f5f9;
-            color: var(--text-muted);
-        }
-
-        /* Floor Accordion Card */
-        .floor-card {
-            border-left: 4px solid var(--accent);
-        }
-
-        .floor-rate-wrap {
-            display: flex;
-            flex-wrap: wrap;
+            border: none;
+            display: inline-flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            background: #f8fafc;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 14px 18px;
-            margin-top: 20px;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
         }
 
-        .rate-field-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .rate-field-group input {
-            width: 120px;
-            font-family: var(--font-mono);
-            font-weight: 600;
-        }
-
-        /* Subcategories */
-        .subcat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 18px;
-        }
-
-        .subcat-header h4 {
-            font-size: 0.92rem;
-            font-weight: 700;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Sticky Bottom Bar */
-        .grand-bar {
-            position: fixed;
-            bottom: 16px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: calc(100% - 32px);
-            max-width: 1200px;
-            background: #0f172a;
+        .btn-primary {
+            background: var(--accent);
             color: #fff;
-            padding: 16px 24px;
-            border-radius: var(--radius-lg);
-            box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.45);
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-            z-index: 45;
         }
 
-        .bar-metrics {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 24px;
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text);
         }
 
-        .metric-pill {
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-sm {
+            height: 32px;
+            padding: 0 8px;
+            font-size: 0.75rem;
+        }
+
+        .btn-block {
+            width: 100%;
+            height: 44px;
+            margin-top: 6px;
+        }
+
+        /* Compact Entry Cards (Replaces wide desktop tables) */
+        .row-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            margin-bottom: 8px;
             display: flex;
             flex-direction: column;
+            gap: 8px;
         }
 
-        .metric-pill .lbl {
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #94a3b8;
+        .row-card-top {
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
 
-        .metric-pill .val {
-            font-size: 1.15rem;
-            font-weight: 700;
+        .row-card-sub {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            padding-top: 6px;
+            border-top: 1px dashed var(--border);
+        }
+
+        .mono {
             font-family: var(--font-mono);
+            font-weight: 600;
         }
 
-        .metric-pill.grand-accent .val {
-            font-size: 1.55rem;
-            color: #4ade80;
+        /* Floor Specifics */
+        .floor-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
         }
 
-        /* Interactive Invoice Preview Container */
-        #invoice-preview-card {
-            display: none;
-            background: #fff;
-            padding: 40px;
+        .subcat-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin: 12px 0 6px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .floor-footer {
+            background: rgba(0, 0, 0, 0.35);
             border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            max-width: 900px;
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Fixed Bottom Action Bar */
+        .sticky-foot {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid var(--border);
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+            max-width: 600px;
             margin: 0 auto;
         }
 
-        /* Print Specifics (A4 Document Format) */
+        .foot-total-lbl {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .foot-total-val {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--success);
+            font-family: var(--font-mono);
+        }
+
+        /* Printable Invoice (A4 Standard) */
+        #print-section {
+            display: none;
+            background: #fff;
+            color: #000;
+            padding: 20px;
+            border-radius: var(--radius);
+        }
+
         @media print {
             body {
                 background: #fff !important;
-                padding-bottom: 0 !important;
+                color: #000 !important;
+                padding: 0 !important;
             }
 
-            .navbar,
-            .grand-bar,
-            #tab-estimator,
-            .btn,
-            .no-print {
+            .top-bar,
+            .sticky-foot,
+            #edit-section,
+            .btn {
                 display: none !important;
             }
 
-            #invoice-preview-card {
+            #print-section {
                 display: block !important;
-                border: none !important;
                 padding: 0 !important;
-                box-shadow: none !important;
-                max-width: 100% !important;
             }
-
-            .table-container {
-                border: 1px solid #cbd5e1;
-            }
-        }
-
-        /* Invoice Layout */
-        .inv-top {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 20px;
-            margin-bottom: 24px;
-        }
-
-        .inv-title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--primary);
-        }
-
-        .inv-client-box {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            background: #f8fafc;
-            padding: 16px 20px;
-            border-radius: var(--radius-md);
-            margin-bottom: 24px;
-            border: 1px solid var(--border);
         }
 
         .inv-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin: 10px 0;
+            font-size: 0.8rem;
         }
 
         .inv-table th,
         .inv-table td {
             border: 1px solid #cbd5e1;
-            padding: 8px 12px;
-            font-size: 0.86rem;
+            padding: 6px;
+            text-align: left;
         }
 
         .inv-table th {
             background: #f1f5f9;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .inv-total-section {
-            width: 320px;
-            margin-left: auto;
-            margin-top: 24px;
-            border: 1px solid #cbd5e1;
-            border-radius: var(--radius-md);
-            overflow: hidden;
-        }
-
-        .inv-total-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 14px;
-            font-size: 0.88rem;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .inv-total-row.highlight {
-            background: #f8fafc;
-            font-weight: 800;
-            font-size: 1.15rem;
-            color: var(--primary);
-            border-bottom: none;
-        }
-
-        .inv-sign-block {
-            margin-top: 50px;
-            display: flex;
-            justify-content: space-between;
-            padding-top: 24px;
-            border-top: 1px dashed var(--border);
-        }
-
-        .sign-line {
-            width: 200px;
-            border-top: 1px solid #000;
-            text-align: center;
-            padding-top: 6px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-muted);
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Navigation Bar -->
-    <header class="navbar">
-        <div class="nav-inner">
-            <div class="brand">
-                <div class="brand-icon">CP</div>
-                <div>
-                    <h1>Concrete Pro Estimator</h1>
-                    <p>Multi-Floor Costing & Client Invoice Sheet</p>
-                </div>
-            </div>
-
-            <!-- Navigation Tabs -->
-            <div class="nav-tabs">
-                <button id="btn-tab-est" class="tab-btn active" onclick="switchTab('estimator')">Calculator</button>
-                <button id="btn-tab-inv" class="tab-btn" onclick="switchTab('invoice')">Invoice Preview</button>
-            </div>
-
-            <div class="nav-actions">
-                <button class="btn btn-secondary btn-sm" onclick="resetDefaults()">Reset</button>
-                <button class="btn btn-primary btn-sm" onclick="printInvoice()">🖨️ Print / Save PDF</button>
-            </div>
+    <!-- Sticky Top Header -->
+    <header class="top-bar">
+        <div>
+            <div class="brand-title">Concrete Pro</div>
+            <div class="brand-sub">Estimator & Client Bill</div>
+        </div>
+        <div style="display: flex; gap: 6px;">
+            <button class="btn btn-secondary btn-sm" onclick="resetForm()">Reset</button>
+            <button class="btn btn-primary btn-sm" onclick="printDoc()">🖨️ PDF</button>
         </div>
     </header>
 
-    <div class="main-wrap">
+    <main class="app-wrap">
+        <!-- View Switcher -->
+        <div class="tab-pills">
+            <button class="tab-btn active" id="tab-btn-edit" onclick="setTab('edit')">Calculator</button>
+            <button class="tab-btn" id="tab-btn-inv" onclick="setTab('inv')">Invoice Preview</button>
+        </div>
 
-        <!-- TAB 1: ESTIMATOR WORKSPACE -->
-        <section id="tab-estimator">
-
-            <!-- Job & Client Details Card -->
+        <!-- TAB 1: Mobile Calculator -->
+        <div id="edit-section">
+            <!-- Client & Site Details -->
             <div class="card">
-                <div class="card-header">
-                    <div class="card-title">📋 Project & Client Metadata</div>
+                <div class="card-title">Project Details</div>
+                <div class="field-group" style="margin-bottom: 8px;">
+                    <label>Client Name</label>
+                    <input type="text" id="meta-client" placeholder="e.g. Ramesh Kumar" oninput="saveData()">
                 </div>
-                <div class="meta-grid">
-                    <div class="form-group">
-                        <label>Client Name</label>
-                        <input type="text" id="client-name" placeholder="e.g. Ramesh Kumar" oninput="saveState()">
+                <div class="field-group" style="margin-bottom: 8px;">
+                    <label>Site Location</label>
+                    <input type="text" id="meta-site" placeholder="e.g. Plot #42, Main Road" oninput="saveData()">
+                </div>
+                <div class="form-row" style="margin-bottom: 0;">
+                    <div class="field-group">
+                        <label>Bill / Est #</label>
+                        <input type="text" id="meta-no" placeholder="EST-101" oninput="saveData()">
                     </div>
-                    <div class="form-group">
-                        <label>Site Location / Plot</label>
-                        <input type="text" id="site-loc" placeholder="e.g. Plot #24, Sector 7" oninput="saveState()">
-                    </div>
-                    <div class="form-group">
-                        <label>Invoice / Estimate #</label>
-                        <input type="text" id="inv-no" placeholder="EST-001" oninput="saveState()">
-                    </div>
-                    <div class="form-group">
+                    <div class="field-group">
                         <label>Date</label>
-                        <input type="date" id="inv-date" oninput="saveState()">
+                        <input type="date" id="meta-date" oninput="saveData()">
                     </div>
                 </div>
             </div>
 
-            <!-- Slab Multiplier Table -->
+            <!-- Slab Multiplier Config -->
             <div class="card">
-                <div class="card-header">
-                    <div class="card-title">⚙️ Slab Thickness Multiplier Settings</div>
-                    <button class="btn btn-secondary btn-sm" onclick="addThicknessRule()">+ Add Thickness</button>
+                <div class="card-title">
+                    <span>Slab Multipliers</span>
+                    <button class="btn btn-secondary btn-sm" onclick="addThicknessRule()">+ Add</button>
                 </div>
-                <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px;">
-                    Adjust or add slab thickness multipliers. All slab dropdowns update dynamically.
-                </p>
-                <div class="table-container">
-                    <table id="thickness-table">
-                        <thead>
-                            <tr>
-                                <th>Thickness Label</th>
-                                <th>Multiplier (×)</th>
-                                <th style="width: 80px;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+                <div id="thickness-list"></div>
             </div>
 
             <!-- Floors Container -->
             <div id="floors-container"></div>
-            <div style="margin-bottom: 24px;">
-                <button class="btn btn-primary" onclick="addFloor()">+ Add New Floor</button>
-            </div>
+            <button class="btn btn-primary btn-block" onclick="addFloor()">+ Add New Floor</button>
 
-            <!-- Pillars & Steps (Non-floor categories) -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">🏛️ Pillars & Steps (Flat Unit Pricing)</div>
-                </div>
+            <!-- Flat Rate Items: Pillars & Steps -->
+            <div class="card" style="margin-top: 16px;">
+                <div class="card-title">Pillars & Steps (Flat Unit Rates)</div>
 
-                <!-- Pillars -->
-                <div class="subcat-header">
-                    <h4>Pillars</h4>
-                    <button class="btn btn-secondary btn-sm" onclick="addPillarRow()">+ Add Pillar</button>
+                <div class="subcat-label">
+                    <span>Pillars</span>
+                    <button class="btn btn-secondary btn-sm" onclick="addPillar()">+ Add</button>
                 </div>
-                <div class="table-container">
-                    <table id="pillars-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 80px;">#</th>
-                                <th>Price per Pillar (₹)</th>
-                                <th style="width: 80px;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-                <div style="text-align: right; font-weight: 600; font-size: 0.88rem; margin-bottom: 20px;">
-                    Pillars Subtotal: ₹<span id="pillars-total" class="col-mono">0</span>
+                <div id="pillars-list"></div>
+                <div style="text-align: right; font-size: 0.8rem; margin: 4px 0 10px 0;">
+                    Pillars: <span class="mono" id="lbl-pillars-sub">₹0</span>
                 </div>
 
-                <!-- Steps -->
-                <div class="subcat-header">
-                    <h4>Steps</h4>
-                    <button class="btn btn-secondary btn-sm" onclick="addStepRow()">+ Add Step</button>
+                <div class="subcat-label">
+                    <span>Steps</span>
+                    <button class="btn btn-secondary btn-sm" onclick="addStep()">+ Add</button>
                 </div>
-                <div class="table-container">
-                    <table id="steps-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 80px;">#</th>
-                                <th>Price per Step (₹)</th>
-                                <th style="width: 80px;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                <div id="steps-list"></div>
+                <div style="text-align: right; font-size: 0.8rem; margin-top: 4px;">
+                    Steps: <span class="mono" id="lbl-steps-sub">₹0</span>
                 </div>
-                <div style="text-align: right; font-weight: 600; font-size: 0.88rem;">
-                    Steps Subtotal: ₹<span id="steps-total" class="col-mono">0</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 2: INVOICE PREVIEW -->
-        <section id="invoice-preview-card">
-            <div class="inv-top">
-                <div>
-                    <div class="inv-title">ESTIMATE & BILL</div>
-                    <div style="color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">Concrete Masonry &
-                        Structural Work</div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-weight: 700; font-size: 0.95rem;">Bill #: <span id="print-inv-no">EST-101</span>
-                    </div>
-                    <div style="font-size: 0.85rem; color: var(--text-muted);">Date: <span id="print-inv-date"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="inv-client-box">
-                <div>
-                    <span
-                        style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted);">Billed
-                        To</span>
-                    <div id="print-client-name" style="font-size: 1.05rem; font-weight: 700; margin-top: 4px;">—</div>
-                </div>
-                <div>
-                    <span
-                        style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted);">Site
-                        Location</span>
-                    <div id="print-site-loc" style="font-size: 0.95rem; font-weight: 600; margin-top: 4px;">—</div>
-                </div>
-            </div>
-
-            <div id="print-floors-breakdown"></div>
-            <div id="print-pillars-steps-section"></div>
-
-            <!-- Invoice Totals Box -->
-            <div class="inv-total-section">
-                <div class="inv-total-row">
-                    <span>Floors Total:</span>
-                    <span id="print-total-floors" class="col-mono">₹0</span>
-                </div>
-                <div class="inv-total-row">
-                    <span>Pillars Total:</span>
-                    <span id="print-total-pillars" class="col-mono">₹0</span>
-                </div>
-                <div class="inv-total-row">
-                    <span>Steps Total:</span>
-                    <span id="print-total-steps" class="col-mono">₹0</span>
-                </div>
-                <div class="inv-total-row highlight">
-                    <span>Grand Total:</span>
-                    <span id="print-total-grand" style="color: var(--accent);">₹0</span>
-                </div>
-            </div>
-
-            <div class="inv-sign-block">
-                <div class="sign-line">Client Signature</div>
-                <div class="sign-line">Authorized Signatory</div>
-            </div>
-        </section>
-
-    </div>
-
-    <!-- Sticky Bottom Summary Bar -->
-    <div class="grand-bar">
-        <div class="bar-metrics">
-            <div class="metric-pill">
-                <span class="lbl">Floors Total</span>
-                <span class="val" id="summary-floors-cost">₹0</span>
-            </div>
-            <div class="metric-pill">
-                <span class="lbl">Pillars</span>
-                <span class="val" id="summary-pillars-cost">₹0</span>
-            </div>
-            <div class="metric-pill">
-                <span class="lbl">Steps</span>
-                <span class="val" id="summary-steps-cost">₹0</span>
-            </div>
-            <div class="metric-pill grand-accent">
-                <span class="lbl">Grand Total</span>
-                <span class="val" id="summary-grand-total">₹0</span>
             </div>
         </div>
-        <button class="btn btn-primary" onclick="printInvoice()">🖨️ Print / Save PDF</button>
+
+        <!-- TAB 2: Mobile/A4 Invoice Preview -->
+        <div id="print-section">
+            <div
+                style="display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
+                <div>
+                    <h2 style="font-size: 1.25rem; font-weight: 800;">CONCRETE WORK ESTIMATE</h2>
+                    <p style="font-size: 0.8rem; color: #475569;">Structural & Area Measurement Bill</p>
+                </div>
+                <div style="text-align: right; font-size: 0.8rem;">
+                    <div><strong>Bill #:</strong> <span id="prn-no"></span></div>
+                    <div><strong>Date:</strong> <span id="prn-date"></span></div>
+                </div>
+            </div>
+
+            <div
+                style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; border-radius: 6px; margin-bottom: 12px; font-size: 0.85rem;">
+                <div><strong>Client:</strong> <span id="prn-client"></span></div>
+                <div><strong>Site:</strong> <span id="prn-site"></span></div>
+            </div>
+
+            <div id="prn-floors-table"></div>
+            <div id="prn-units-table"></div>
+
+            <div
+                style="margin-top: 14px; border: 1px solid #000; padding: 10px; border-radius: 6px; font-size: 0.88rem; width: 260px; margin-left: auto;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Floors Total:</span> <strong id="prn-floors-total">₹0</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Units Total:</span> <strong id="prn-units-total">₹0</strong>
+                </div>
+                <div
+                    style="display: flex; justify-content: space-between; font-size: 1.05rem; border-top: 1px solid #000; margin-top: 6px; padding-top: 6px;">
+                    <span>Grand Total:</span> <strong id="prn-grand-total">₹0</strong>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Sticky Thumb Summary Bar -->
+    <div class="sticky-foot">
+        <div>
+            <div class="foot-total-lbl">Grand Total</div>
+            <div class="foot-total-val" id="foot-grand-val">₹0</div>
+        </div>
+        <button class="btn btn-primary" onclick="printDoc()">Share / Print</button>
     </div>
 
     <script>
         // 1 meter = 3.28084 feet
         const M_TO_FT = 3.28084;
 
-        let slabMultipliers = [];
-        let floors = [];
-        let pillars = [];
-        let steps = [];
+        let appData = {
+            meta: { client: '', site: '', invNo: 'EST-101', date: '' },
+            slabMultipliers: [
+                { id: '4in', label: '4"', multiplier: 1.0 },
+                { id: '5in', label: '5"', multiplier: 1.25 },
+                { id: '6in', label: '6"', multiplier: 1.5 }
+            ],
+            floors: [],
+            pillars: [],
+            steps: []
+        };
 
-        // Switch between interactive builder and print preview
-        function switchTab(tab) {
-            const isEst = tab === 'estimator';
-            document.getElementById('tab-estimator').style.display = isEst ? 'block' : 'none';
-            document.getElementById('invoice-preview-card').style.display = isEst ? 'none' : 'block';
-            document.getElementById('btn-tab-est').classList.toggle('active', isEst);
-            document.getElementById('btn-tab-inv').classList.toggle('active', !isEst);
-            if (!isEst) preparePrintPreview();
+        function init() {
+            const saved = localStorage.getItem('concrete_mobile_data');
+            if (saved) {
+                try { appData = JSON.parse(saved); } catch (e) { resetForm(); }
+            } else {
+                resetForm();
+            }
+            renderAll();
         }
 
-        function printInvoice() {
-            switchTab('invoice');
+        function resetForm() {
+            appData = {
+                meta: {
+                    client: 'Ramesh Kumar',
+                    site: 'Plot #42, Main Site',
+                    invNo: 'EST-101',
+                    date: new Date().toISOString().split('T')[0]
+                },
+                slabMultipliers: [
+                    { id: '4in', label: '4"', multiplier: 1.0 },
+                    { id: '5in', label: '5"', multiplier: 1.25 },
+                    { id: '6in', label: '6"', multiplier: 1.5 }
+                ],
+                floors: [
+                    {
+                        name: 'Ground Floor',
+                        rate: 180,
+                        slabs: [{ l: 10, b: 8, thick: '5in' }, { l: 4, b: 3.5, thick: '4in' }],
+                        beams: [{ l: 6, b: 0.3 }, { l: 5, b: 0.3 }],
+                        lintels: [{ l: 5, b: 0.25 }, { l: 3, b: 0.25 }],
+                        sunshades: [{ l: 3, b: 0.6 }, { l: 2, b: 0.6 }],
+                        layers: [{ l: 4, b: 3.5 }, { l: 2, b: 0.6 }, { l: 5, b: 2 }],
+                        borders: []
+                    }
+                ],
+                pillars: [10000, 10000, 10000, 10000, 10000, 10000],
+                steps: Array(12).fill(1000)
+            };
+            saveData();
+            renderAll();
+        }
+
+        function saveData() {
+            appData.meta.client = document.getElementById('meta-client').value;
+            appData.meta.site = document.getElementById('meta-site').value;
+            appData.meta.invNo = document.getElementById('meta-no').value;
+            appData.meta.date = document.getElementById('meta-date').value;
+            localStorage.setItem('concrete_mobile_data', JSON.stringify(appData));
+            updatePrintPreview();
+        }
+
+        function setTab(tab) {
+            const isEdit = tab === 'edit';
+            document.getElementById('edit-section').style.display = isEdit ? 'block' : 'none';
+            document.getElementById('print-section').style.display = isEdit ? 'none' : 'block';
+            document.getElementById('tab-btn-edit').classList.toggle('active', isEdit);
+            document.getElementById('tab-btn-inv').classList.toggle('active', !isEdit);
+            if (!isEdit) updatePrintPreview();
+        }
+
+        function printDoc() {
+            setTab('inv');
             window.print();
         }
 
-        function loadState() {
-            const saved = localStorage.getItem('concrete_pro_app_state');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    slabMultipliers = parsed.slabMultipliers || [];
-                    floors = parsed.floors || [];
-                    pillars = parsed.pillars || [];
-                    steps = parsed.steps || [];
-                    document.getElementById('client-name').value = parsed.meta?.client || '';
-                    document.getElementById('site-loc').value = parsed.meta?.site || '';
-                    document.getElementById('inv-no').value = parsed.meta?.invNo || '';
-                    document.getElementById('inv-date').value = parsed.meta?.date || '';
-                    renderAll();
-                    return;
-                } catch (e) {
-                    console.error(e);
-                }
-            }
-            resetDefaults();
-        }
-
-        function saveState() {
-            const meta = {
-                client: document.getElementById('client-name').value,
-                site: document.getElementById('site-loc').value,
-                invNo: document.getElementById('inv-no').value,
-                date: document.getElementById('inv-date').value
-            };
-            const data = { slabMultipliers, floors, pillars, steps, meta };
-            localStorage.setItem('concrete_pro_app_state', JSON.stringify(data));
-            preparePrintPreview();
-        }
-
-        function resetDefaults() {
-            slabMultipliers = [
-                { id: '4inch', label: '4"', multiplier: 1.0 },
-                { id: '5inch', label: '5"', multiplier: 1.25 },
-                { id: '6inch', label: '6"', multiplier: 1.5 }
-            ];
-
-            floors = [
-                {
-                    id: 'floor-0',
-                    name: 'Ground Floor',
-                    rate: 180,
-                    slabs: [
-                        { l: 10, b: 8, thicknessId: '5inch' },
-                        { l: 4, b: 3.5, thicknessId: '4inch' }
-                    ],
-                    beams: [
-                        { l: 6, b: 0.3 },
-                        { l: 5, b: 0.3 }
-                    ],
-                    lintels: [
-                        { l: 5, b: 0.25 },
-                        { l: 3, b: 0.25 }
-                    ],
-                    sunshades: [
-                        { l: 3, b: 0.6 },
-                        { l: 2, b: 0.6 }
-                    ],
-                    layers: [
-                        { l: 4, b: 3.5 },
-                        { l: 2, b: 0.6 },
-                        { l: 5, b: 2 }
-                    ],
-                    borders: []
-                }
-            ];
-
-            pillars = Array(6).fill(10000);
-            steps = Array(12).fill(1000);
-
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('inv-date').value = today;
-            document.getElementById('inv-no').value = 'EST-101';
-            document.getElementById('client-name').value = 'Ramesh Kumar';
-            document.getElementById('site-loc').value = 'Plot #42, Civil Lines';
-
-            renderAll();
-            saveState();
-        }
-
-        // Slab Multipliers
-        function renderMultiplierTable() {
-            const tbody = document.querySelector('#thickness-table tbody');
-            tbody.innerHTML = '';
-            slabMultipliers.forEach((item, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-          <td><input type="text" value="${item.label}" onchange="updateThicknessLabel(${index}, this.value)" style="width: 120px;"></td>
-          <td><input type="number" step="0.05" value="${item.multiplier}" oninput="updateThicknessMultiplier(${index}, this.value)" style="width: 140px;"></td>
-          <td><button class="btn btn-danger-subtle btn-sm" onclick="removeThicknessRule(${index})">Remove</button></td>
-        `;
-                tbody.appendChild(tr);
-            });
+        /* Slab Multipliers */
+        function renderMultipliers() {
+            const wrap = document.getElementById('thickness-list');
+            wrap.innerHTML = appData.slabMultipliers.map((m, idx) => `
+        <div style="display:flex; gap:6px; margin-bottom:6px;">
+          <input type="text" value="${m.label}" style="flex:1;" onchange="appData.slabMultipliers[${idx}].label=this.value; saveData(); renderFloors();">
+          <input type="number" step="0.05" value="${m.multiplier}" style="width:90px;" oninput="appData.slabMultipliers[${idx}].multiplier=parseFloat(this.value)||0; saveData(); renderFloors();">
+          <button class="btn btn-danger btn-sm" onclick="appData.slabMultipliers.splice(${idx},1); saveData(); renderMultipliers(); renderFloors();">×</button>
+        </div>
+      `).join('');
         }
 
         function addThicknessRule() {
-            slabMultipliers.push({ id: 'thick_' + Date.now(), label: 'Custom', multiplier: 1.0 });
-            renderMultiplierTable();
+            appData.slabMultipliers.push({ id: 'th_' + Date.now(), label: 'Custom', multiplier: 1.0 });
+            saveData();
+            renderMultipliers();
             renderFloors();
-            saveState();
         }
 
-        function removeThicknessRule(index) {
-            slabMultipliers.splice(index, 1);
-            renderMultiplierTable();
-            renderFloors();
-            saveState();
-        }
-
-        function updateThicknessLabel(index, val) {
-            slabMultipliers[index].label = val;
-            renderFloors();
-            saveState();
-        }
-
-        function updateThicknessMultiplier(index, val) {
-            slabMultipliers[index].multiplier = parseFloat(val) || 0;
-            renderFloors();
-            saveState();
-        }
-
-        // Floors Management
+        /* Floors */
         function addFloor() {
-            const count = floors.length;
-            const names = ['Ground Floor', '1st Floor', '2nd Floor', '3rd Floor', '4th Floor'];
-            const name = count < names.length ? names[count] : `${count}th Floor`;
-
-            floors.push({
-                id: 'floor-' + Date.now(),
-                name: name,
+            appData.floors.push({
+                name: `${appData.floors.length + 1}th Floor`,
                 rate: 180,
-                slabs: [],
-                beams: [],
-                lintels: [],
-                sunshades: [],
-                layers: [],
-                borders: []
+                slabs: [], beams: [], lintels: [], sunshades: [], layers: [], borders: []
             });
+            saveData();
             renderFloors();
-            saveState();
         }
 
-        function removeFloor(index) {
-            floors.splice(index, 1);
-            renderFloors();
-            saveState();
-        }
-
-        function updateFloorRate(index, val) {
-            floors[index].rate = parseFloat(val) || 0;
-            recalculateFloor(index);
-            saveState();
-        }
-
-        function addCategoryRow(floorIndex, categoryKey) {
-            if (categoryKey === 'slabs') {
-                const def = slabMultipliers[0] ? slabMultipliers[0].id : '';
-                floors[floorIndex].slabs.push({ l: 0, b: 0, thicknessId: def });
-            } else if (categoryKey === 'borders') {
-                floors[floorIndex].borders.push({ l: 0 });
+        function addRow(fIdx, cat) {
+            if (cat === 'slabs') {
+                const def = appData.slabMultipliers[0] ? appData.slabMultipliers[0].id : '';
+                appData.floors[fIdx].slabs.push({ l: 0, b: 0, thick: def });
+            } else if (cat === 'borders') {
+                appData.floors[fIdx].borders.push({ l: 0 });
             } else {
-                floors[floorIndex][categoryKey].push({ l: 0, b: 0 });
+                appData.floors[fIdx][cat].push({ l: 0, b: 0 });
             }
+            saveData();
             renderFloors();
-            saveState();
         }
 
-        function removeCategoryRow(floorIndex, categoryKey, rowIndex) {
-            floors[floorIndex][categoryKey].splice(rowIndex, 1);
+        function removeRow(fIdx, cat, rIdx) {
+            appData.floors[fIdx][cat].splice(rIdx, 1);
+            saveData();
             renderFloors();
-            saveState();
         }
 
-        function updateRowVal(floorIndex, categoryKey, rowIndex, field, val) {
-            floors[floorIndex][categoryKey][rowIndex][field] = field === 'thicknessId' ? val : (parseFloat(val) || 0);
-            recalculateFloor(floorIndex);
-            saveState();
-        }
-
-        // Pillars & Steps
-        function addPillarRow() {
-            pillars.push(0);
-            renderPillars();
-            recalculateGrandTotals();
-            saveState();
-        }
-
-        function removePillarRow(index) {
-            pillars.splice(index, 1);
-            renderPillars();
-            recalculateGrandTotals();
-            saveState();
-        }
-
-        function updatePillarPrice(index, val) {
-            pillars[index] = parseFloat(val) || 0;
-            updatePillarSubtotal();
-            recalculateGrandTotals();
-            saveState();
-        }
-
-        function addStepRow() {
-            steps.push(0);
-            renderSteps();
-            recalculateGrandTotals();
-            saveState();
-        }
-
-        function removeStepRow(index) {
-            steps.splice(index, 1);
-            renderSteps();
-            recalculateGrandTotals();
-            saveState();
-        }
-
-        function updateStepPrice(index, val) {
-            steps[index] = parseFloat(val) || 0;
-            updateStepSubtotal();
-            recalculateGrandTotals();
-            saveState();
-        }
-
-        // Math
-        function computeRow(l, b, multiplier) {
-            const area = (l * M_TO_FT) * (b * M_TO_FT);
-            const effective = area * multiplier;
-            return { area, effective };
-        }
-
-        function computeBorderRow(l) {
-            return l * M_TO_FT;
-        }
-
-        function getThicknessMultiplier(thicknessId) {
-            const m = slabMultipliers.find(item => item.id === thicknessId);
-            return m ? m.multiplier : 1.0;
-        }
-
-        // Floors Rendering
         function renderFloors() {
             const container = document.getElementById('floors-container');
-            container.innerHTML = '';
+            container.innerHTML = appData.floors.map((fl, fIdx) => {
+                let fSqft = 0;
 
-            floors.forEach((floor, fIndex) => {
-                const card = document.createElement('div');
-                card.className = 'card floor-card';
+                // Render Slabs
+                const slabCards = fl.slabs.map((r, rIdx) => {
+                    const multObj = appData.slabMultipliers.find(m => m.id === r.thick);
+                    const mult = multObj ? multObj.multiplier : 1.0;
+                    const area = (r.l * M_TO_FT) * (r.b * M_TO_FT);
+                    const eff = area * mult;
+                    fSqft += eff;
 
-                // Slabs Table Rows
-                const slabRows = floor.slabs.map((row, rIndex) => {
-                    const mult = getThicknessMultiplier(row.thicknessId);
-                    const { area, effective } = computeRow(row.l, row.b, mult);
-                    const options = slabMultipliers.map(m =>
-                        `<option value="${m.id}" ${m.id === row.thicknessId ? 'selected' : ''}>${m.label} (×${m.multiplier})</option>`
+                    const opts = appData.slabMultipliers.map(m =>
+                        `<option value="${m.id}" ${m.id === r.thick ? 'selected' : ''}>${m.label} (×${m.multiplier})</option>`
                     ).join('');
 
                     return `
-            <tr>
-              <td><input type="number" step="0.01" value="${row.l || ''}" placeholder="L (m)" oninput="updateRowVal(${fIndex}, 'slabs', ${rIndex}, 'l', this.value)"></td>
-              <td><input type="number" step="0.01" value="${row.b || ''}" placeholder="B (m)" oninput="updateRowVal(${fIndex}, 'slabs', ${rIndex}, 'b', this.value)"></td>
-              <td><select onchange="updateRowVal(${fIndex}, 'slabs', ${rIndex}, 'thicknessId', this.value)">${options}</select></td>
-              <td class="col-mono" id="slab-area-${fIndex}-${rIndex}">${area.toFixed(1)}</td>
-              <td class="col-mono" style="color: var(--accent);" id="slab-eff-${fIndex}-${rIndex}">${effective.toFixed(1)}</td>
-              <td><button class="btn btn-danger-subtle btn-sm" onclick="removeCategoryRow(${fIndex}, 'slabs', ${rIndex})">×</button></td>
-            </tr>
+            <div class="row-card">
+              <div class="row-card-top">
+                <input type="number" step="0.01" placeholder="L (m)" value="${r.l || ''}" oninput="fl.slabs[${rIdx}].l=parseFloat(this.value)||0; recalculate();">
+                <input type="number" step="0.01" placeholder="B (m)" value="${r.b || ''}" oninput="fl.slabs[${rIdx}].b=parseFloat(this.value)||0; recalculate();">
+                <select onchange="fl.slabs[${rIdx}].thick=this.value; recalculate();">${opts}</select>
+                <button class="btn btn-danger btn-sm" onclick="removeRow(${fIdx},'slabs',${rIdx})">×</button>
+              </div>
+              <div class="row-card-sub">
+                <span>Area: <strong class="mono">${area.toFixed(1)}</strong> sqft</span>
+                <span>Effective: <strong class="mono" style="color:var(--accent);">${eff.toFixed(1)}</strong> sqft</span>
+              </div>
+            </div>
           `;
                 }).join('');
 
-                // Standard Rows
-                const makeStandardRows = (catKey, mult) => floor[catKey].map((row, rIndex) => {
-                    const { area, effective } = computeRow(row.l, row.b, mult);
+                // Standard categories generator
+                const makeStdCards = (cat, mult) => fl[cat].map((r, rIdx) => {
+                    const area = (r.l * M_TO_FT) * (r.b * M_TO_FT);
+                    const eff = area * mult;
+                    fSqft += eff;
+
                     return `
-            <tr>
-              <td><input type="number" step="0.01" value="${row.l || ''}" placeholder="L (m)" oninput="updateRowVal(${fIndex}, '${catKey}', ${rIndex}, 'l', this.value)"></td>
-              <td><input type="number" step="0.01" value="${row.b || ''}" placeholder="B (m)" oninput="updateRowVal(${fIndex}, '${catKey}', ${rIndex}, 'b', this.value)"></td>
-              <td class="col-mono" id="${catKey}-area-${fIndex}-${rIndex}">${area.toFixed(1)}</td>
-              <td class="col-mono" style="color: var(--accent);" id="${catKey}-eff-${fIndex}-${rIndex}">${effective.toFixed(1)}</td>
-              <td><button class="btn btn-danger-subtle btn-sm" onclick="removeCategoryRow(${fIndex}, '${catKey}', ${rIndex})">×</button></td>
-            </tr>
+            <div class="row-card">
+              <div class="row-card-top">
+                <input type="number" step="0.01" placeholder="L (m)" value="${r.l || ''}" oninput="fl.${cat}[${rIdx}].l=parseFloat(this.value)||0; recalculate();">
+                <input type="number" step="0.01" placeholder="B (m)" value="${r.b || ''}" oninput="fl.${cat}[${rIdx}].b=parseFloat(this.value)||0; recalculate();">
+                <button class="btn btn-danger btn-sm" onclick="removeRow(${fIdx},'${cat}',${rIdx})">×</button>
+              </div>
+              <div class="row-card-sub">
+                <span>Area: <strong class="mono">${area.toFixed(1)}</strong> sqft</span>
+                <span>Effective (×${mult}): <strong class="mono" style="color:var(--accent);">${eff.toFixed(1)}</strong> sqft</span>
+              </div>
+            </div>
           `;
                 }).join('');
 
-                // Borders
-                const borderRows = floor.borders.map((row, rIndex) => {
-                    const directSqft = computeBorderRow(row.l);
+                // Borders generator
+                const borderCards = fl.borders.map((r, rIdx) => {
+                    const direct = r.l * M_TO_FT;
+                    fSqft += direct;
                     return `
-            <tr>
-              <td><input type="number" step="0.01" value="${row.l || ''}" placeholder="Length (m)" oninput="updateRowVal(${fIndex}, 'borders', ${rIndex}, 'l', this.value)"></td>
-              <td style="color: var(--text-muted); font-size: 0.8rem;">Direct feet conversion (L × 3.28084)</td>
-              <td class="col-mono" style="color: var(--accent);" id="borders-eff-${fIndex}-${rIndex}">${directSqft.toFixed(1)}</td>
-              <td><button class="btn btn-danger-subtle btn-sm" onclick="removeCategoryRow(${fIndex}, 'borders', ${rIndex})">×</button></td>
-            </tr>
+            <div class="row-card">
+              <div class="row-card-top">
+                <input type="number" step="0.01" placeholder="Length (m)" value="${r.l || ''}" oninput="fl.borders[${rIdx}].l=parseFloat(this.value)||0; recalculate();">
+                <button class="btn btn-danger btn-sm" onclick="removeRow(${fIdx},'borders',${rIdx})">×</button>
+              </div>
+              <div class="row-card-sub">
+                <span>Direct ft Conversion</span>
+                <span>Sqft: <strong class="mono" style="color:var(--accent);">${direct.toFixed(1)}</strong> sqft</span>
+              </div>
+            </div>
           `;
                 }).join('');
 
-                card.innerHTML = `
-          <div class="card-header">
-            <div class="card-title">
-              🏢 ${floor.name}
-              <span class="badge badge-blue">Floor #${fIndex + 1}</span>
+                const fCost = Math.round(fSqft * (fl.rate || 0));
+
+                return `
+          <div class="card">
+            <div class="floor-head">
+              <input type="text" value="${fl.name}" style="background:transparent; border:none; font-size:1.05rem; font-weight:700; color:var(--text); width:150px;" onchange="fl.name=this.value; saveData();">
+              <button class="btn btn-danger btn-sm" onclick="appData.floors.splice(${fIdx},1); saveData(); renderFloors();">Delete Floor</button>
             </div>
-            <button class="btn btn-danger-subtle btn-sm" onclick="removeFloor(${fIndex})">Remove Floor</button>
-          </div>
 
-          <!-- Slabs Section -->
-          <div class="subcat-header">
-            <h4>Slabs <span class="badge badge-slate">${floor.slabs.length} rows</span></h4>
-            <button class="btn btn-secondary btn-sm" onclick="addCategoryRow(${fIndex}, 'slabs')">+ Add Row</button>
-          </div>
-          <div class="table-container">
-            <table>
-              <thead><tr><th>Length (m)</th><th>Breadth (m)</th><th>Thickness</th><th>Area (sqft)</th><th>Effective Sqft</th><th style="width: 40px;"></th></tr></thead>
-              <tbody>${slabRows || '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">No slab items added</td></tr>'}</tbody>
-            </table>
-          </div>
-
-          <!-- Beams Section -->
-          <div class="subcat-header">
-            <h4>Beams (×2 Multiplier) <span class="badge badge-slate">${floor.beams.length} rows</span></h4>
-            <button class="btn btn-secondary btn-sm" onclick="addCategoryRow(${fIndex}, 'beams')">+ Add Row</button>
-          </div>
-          <div class="table-container">
-            <table>
-              <thead><tr><th>Length (m)</th><th>Breadth (m)</th><th>Area (sqft)</th><th>Effective Sqft</th><th style="width: 40px;"></th></tr></thead>
-              <tbody>${makeStandardRows('beams', 2) || '<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No beam items added</td></tr>'}</tbody>
-            </table>
-          </div>
-
-          <!-- Lintels Section -->
-          <div class="subcat-header">
-            <h4>Lintels (×1.5 Multiplier) <span class="badge badge-slate">${floor.lintels.length} rows</span></h4>
-            <button class="btn btn-secondary btn-sm" onclick="addCategoryRow(${fIndex}, 'lintels')">+ Add Row</button>
-          </div>
-          <div class="table-container">
-            <table>
-              <thead><tr><th>Length (m)</th><th>Breadth (m)</th><th>Area (sqft)</th><th>Effective Sqft</th><th style="width: 40px;"></th></tr></thead>
-              <tbody>${makeStandardRows('lintels', 1.5) || '<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No lintel items added</td></tr>'}</tbody>
-            </table>
-          </div>
-
-          <!-- Sunshades Section -->
-          <div class="subcat-header">
-            <h4>Sunshades (×1 Multiplier) <span class="badge badge-slate">${floor.sunshades.length} rows</span></h4>
-            <button class="btn btn-secondary btn-sm" onclick="addCategoryRow(${fIndex}, 'sunshades')">+ Add Row</button>
-          </div>
-          <div class="table-container">
-            <table>
-              <thead><tr><th>Length (m)</th><th>Breadth (m)</th><th>Area (sqft)</th><th>Effective Sqft</th><th style="width: 40px;"></th></tr></thead>
-              <tbody>${makeStandardRows('sunshades', 1) || '<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No sunshade items added</td></tr>'}</tbody>
-            </table>
-          </div>
-
-          <!-- Layers Section -->
-          <div class="subcat-header">
-            <h4>Layers (Kitchen/Platform/Pour) <span class="badge badge-slate">${floor.layers.length} rows</span></h4>
-            <button class="btn btn-secondary btn-sm" onclick="addCategoryRow(${fIndex}, 'layers')">+ Add Row</button>
-          </div>
-          <div class="table-container">
-            <table>
-              <thead><tr><th>Length (m)</th><th>Breadth (m)</th><th>Area (sqft)</th><th>Effective Sqft</th><th style="width: 40px;"></th></tr></thead>
-              <tbody>${makeStandardRows('layers', 1) || '<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No layer items added</td></tr>'}</tbody>
-            </table>
-          </div>
-
-          <!-- Borders Section -->
-          <div class="subcat-header">
-            <h4>Borders (Length Only &rarr; Sqft) <span class="badge badge-slate">${floor.borders.length} rows</span></h4>
-            <button class="btn btn-secondary btn-sm" onclick="addCategoryRow(${fIndex}, 'borders')">+ Add Row</button>
-          </div>
-          <div class="table-container">
-            <table>
-              <thead><tr><th style="width: 220px;">Length (m)</th><th>Conversion Type</th><th>Direct Sqft</th><th style="width: 40px;"></th></tr></thead>
-              <tbody>${borderRows || '<tr><td colspan="4" style="text-align:center; color: var(--text-muted);">No border items added</td></tr>'}</tbody>
-            </table>
-          </div>
-
-          <!-- Floor Footer Rate Summary -->
-          <div class="floor-rate-wrap">
-            <div>
-              <span style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Total Effective Sqft</span>
-              <div style="font-size: 1.25rem; font-weight: 700;" class="col-mono"><span id="floor-total-sqft-${fIndex}">0.0</span> sqft</div>
+            <div class="subcat-label">
+              <span>Slabs (${fl.slabs.length})</span>
+              <button class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'slabs')">+ Add</button>
             </div>
-            <div class="rate-field-group">
-              <label style="font-size: 0.85rem; font-weight: 600;">Rate (₹/sqft):</label>
-              <input type="number" value="${floor.rate}" oninput="updateFloorRate(${fIndex}, this.value)">
+            ${slabCards || '<div style="color:var(--text-muted); font-size:0.75rem;">No slabs</div>'}
+
+            <div class="subcat-label">
+              <span>Beams ×2 (${fl.beams.length})</span>
+              <button class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'beams')">+ Add</button>
             </div>
-            <div style="text-align: right;">
-              <span style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Floor Total Cost</span>
-              <div style="font-size: 1.35rem; font-weight: 800; color: var(--accent);" class="col-mono">₹<span id="floor-total-cost-${fIndex}">0</span></div>
+            ${makeStdCards('beams', 2) || '<div style="color:var(--text-muted); font-size:0.75rem;">No beams</div>'}
+
+            <div class="subcat-label">
+              <span>Lintels ×1.5 (${fl.lintels.length})</span>
+              <button class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'lintels')">+ Add</button>
+            </div>
+            ${makeStdCards('lintels', 1.5) || '<div style="color:var(--text-muted); font-size:0.75rem;">No lintels</div>'}
+
+            <div class="subcat-label">
+              <span>Sunshades ×1 (${fl.sunshades.length})</span>
+              <button class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'sunshades')">+ Add</button>
+            </div>
+            ${makeStdCards('sunshades', 1) || '<div style="color:var(--text-muted); font-size:0.75rem;">No sunshades</div>'}
+
+            <div class="subcat-label">
+              <span>Layers ×1 (${fl.layers.length})</span>
+              <button class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'layers')">+ Add</button>
+            </div>
+            ${makeStdCards('layers', 1) || '<div style="color:var(--text-muted); font-size:0.75rem;">No layers</div>'}
+
+            <div class="subcat-label">
+              <span>Borders (${fl.borders.length})</span>
+              <button class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'borders')">+ Add</button>
+            </div>
+            ${borderCards || '<div style="color:var(--text-muted); font-size:0.75rem;">No borders</div>'}
+
+            <div class="floor-footer">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.8rem; color:var(--text-muted);">Floor Sqft:</span>
+                <span class="mono" style="font-size:1.05rem;">${fSqft.toFixed(1)} sqft</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.8rem; color:var(--text-muted);">Rate (₹/sqft):</span>
+                <input type="number" value="${fl.rate}" style="width:100px; height:34px;" oninput="fl.rate=parseFloat(this.value)||0; recalculate();">
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed var(--border); padding-top:6px;">
+                <span style="font-size:0.85rem; font-weight:700;">Floor Total:</span>
+                <span class="mono" style="font-size:1.15rem; color:var(--success);">₹${fCost.toLocaleString('en-IN')}</span>
+              </div>
             </div>
           </div>
         `;
+            }).join('');
 
-                container.appendChild(card);
-                recalculateFloor(fIndex);
-            });
-
-            recalculateGrandTotals();
+            recalculate();
         }
 
-        function recalculateFloor(fIndex) {
-            const floor = floors[fIndex];
-            if (!floor) return;
-
-            let floorTotalSqft = 0;
-
-            floor.slabs.forEach((row, rIndex) => {
-                const mult = getThicknessMultiplier(row.thicknessId);
-                const { area, effective } = computeRow(row.l, row.b, mult);
-                floorTotalSqft += effective;
-                const a = document.getElementById(`slab-area-${fIndex}-${rIndex}`);
-                const e = document.getElementById(`slab-eff-${fIndex}-${rIndex}`);
-                if (a) a.textContent = area.toFixed(1);
-                if (e) e.textContent = effective.toFixed(1);
-            });
-
-            const cats = [
-                { key: 'beams', mult: 2 },
-                { key: 'lintels', mult: 1.5 },
-                { key: 'sunshades', mult: 1 },
-                { key: 'layers', mult: 1 }
-            ];
-
-            cats.forEach(({ key, mult }) => {
-                floor[key].forEach((row, rIndex) => {
-                    const { area, effective } = computeRow(row.l, row.b, mult);
-                    floorTotalSqft += effective;
-                    const a = document.getElementById(`${key}-area-${fIndex}-${rIndex}`);
-                    const e = document.getElementById(`${key}-eff-${fIndex}-${rIndex}`);
-                    if (a) a.textContent = area.toFixed(1);
-                    if (e) e.textContent = effective.toFixed(1);
-                });
-            });
-
-            floor.borders.forEach((row, rIndex) => {
-                const directSqft = computeBorderRow(row.l);
-                floorTotalSqft += directSqft;
-                const e = document.getElementById(`borders-eff-${fIndex}-${rIndex}`);
-                if (e) e.textContent = directSqft.toFixed(1);
-            });
-
-            const floorCost = Math.round(floorTotalSqft * floor.rate);
-            const sqftEl = document.getElementById(`floor-total-sqft-${fIndex}`);
-            const costEl = document.getElementById(`floor-total-cost-${fIndex}`);
-            if (sqftEl) sqftEl.textContent = floorTotalSqft.toFixed(1);
-            if (costEl) costEl.textContent = floorCost.toLocaleString('en-IN');
-
-            recalculateGrandTotals();
-        }
-
+        /* Pillars & Steps */
         function renderPillars() {
-            const tbody = document.querySelector('#pillars-table tbody');
-            tbody.innerHTML = '';
-            pillars.forEach((price, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-          <td class="col-mono">#${index + 1}</td>
-          <td><input type="number" value="${price}" oninput="updatePillarPrice(${index}, this.value)" style="max-width: 250px;"></td>
-          <td><button class="btn btn-danger-subtle btn-sm" onclick="removePillarRow(${index})">×</button></td>
-        `;
-                tbody.appendChild(tr);
-            });
-            updatePillarSubtotal();
+            const wrap = document.getElementById('pillars-list');
+            wrap.innerHTML = appData.pillars.map((p, idx) => `
+        <div style="display:flex; gap:6px; margin-bottom:6px;">
+          <input type="number" value="${p}" style="flex:1;" oninput="appData.pillars[${idx}]=parseFloat(this.value)||0; recalculate();">
+          <button class="btn btn-danger btn-sm" onclick="appData.pillars.splice(${idx},1); recalculate(); renderPillars();">×</button>
+        </div>
+      `).join('');
         }
 
-        function updatePillarSubtotal() {
-            const total = pillars.reduce((acc, curr) => acc + (parseFloat(curr) || 0), 0);
-            document.getElementById('pillars-total').textContent = total.toLocaleString('en-IN');
+        function addPillar() {
+            appData.pillars.push(0);
+            recalculate();
+            renderPillars();
         }
 
         function renderSteps() {
-            const tbody = document.querySelector('#steps-table tbody');
-            tbody.innerHTML = '';
-            steps.forEach((price, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-          <td class="col-mono">#${index + 1}</td>
-          <td><input type="number" value="${price}" oninput="updateStepPrice(${index}, this.value)" style="max-width: 250px;"></td>
-          <td><button class="btn btn-danger-subtle btn-sm" onclick="removeStepRow(${index})">×</button></td>
-        `;
-                tbody.appendChild(tr);
-            });
-            updateStepSubtotal();
+            const wrap = document.getElementById('steps-list');
+            wrap.innerHTML = appData.steps.map((s, idx) => `
+        <div style="display:flex; gap:6px; margin-bottom:6px;">
+          <input type="number" value="${s}" style="flex:1;" oninput="appData.steps[${idx}]=parseFloat(this.value)||0; recalculate();">
+          <button class="btn btn-danger btn-sm" onclick="appData.steps.splice(${idx},1); recalculate(); renderSteps();">×</button>
+        </div>
+      `).join('');
         }
 
-        function updateStepSubtotal() {
-            const total = steps.reduce((acc, curr) => acc + (parseFloat(curr) || 0), 0);
-            document.getElementById('steps-total').textContent = total.toLocaleString('en-IN');
+        function addStep() {
+            appData.steps.push(0);
+            recalculate();
+            renderSteps();
         }
 
-        function recalculateGrandTotals() {
-            let totalFloorsCost = 0;
-
-            floors.forEach(floor => {
-                let floorSqft = 0;
-                floor.slabs.forEach(row => {
-                    floorSqft += computeRow(row.l, row.b, getThicknessMultiplier(row.thicknessId)).effective;
+        function recalculate() {
+            let floorsTotal = 0;
+            appData.floors.forEach(fl => {
+                let fSqft = 0;
+                fl.slabs.forEach(r => {
+                    const m = appData.slabMultipliers.find(item => item.id === r.thick);
+                    fSqft += ((r.l * M_TO_FT) * (r.b * M_TO_FT)) * (m ? m.multiplier : 1.0);
                 });
-                floor.beams.forEach(row => { floorSqft += computeRow(row.l, row.b, 2).effective; });
-                floor.lintels.forEach(row => { floorSqft += computeRow(row.l, row.b, 1.5).effective; });
-                floor.sunshades.forEach(row => { floorSqft += computeRow(row.l, row.b, 1).effective; });
-                floor.layers.forEach(row => { floorSqft += computeRow(row.l, row.b, 1).effective; });
-                floor.borders.forEach(row => { floorSqft += computeBorderRow(row.l); });
+                fl.beams.forEach(r => fSqft += ((r.l * M_TO_FT) * (r.b * M_TO_FT)) * 2);
+                fl.lintels.forEach(r => fSqft += ((r.l * M_TO_FT) * (r.b * M_TO_FT)) * 1.5);
+                fl.sunshades.forEach(r => fSqft += ((r.l * M_TO_FT) * (r.b * M_TO_FT)) * 1);
+                fl.layers.forEach(r => fSqft += ((r.l * M_TO_FT) * (r.b * M_TO_FT)) * 1);
+                fl.borders.forEach(r => fSqft += (r.l * M_TO_FT));
 
-                totalFloorsCost += Math.round(floorSqft * (floor.rate || 0));
+                floorsTotal += Math.round(fSqft * (fl.rate || 0));
             });
 
-            const totalPillarsCost = pillars.reduce((acc, curr) => acc + (parseFloat(curr) || 0), 0);
-            const totalStepsCost = steps.reduce((acc, curr) => acc + (parseFloat(curr) || 0), 0);
-            const grandTotal = totalFloorsCost + totalPillarsCost + totalStepsCost;
+            const pillarsTotal = appData.pillars.reduce((a, b) => a + (parseFloat(b) || 0), 0);
+            const stepsTotal = appData.steps.reduce((a, b) => a + (parseFloat(b) || 0), 0);
+            const grandTotal = floorsTotal + pillarsTotal + stepsTotal;
 
-            document.getElementById('summary-floors-cost').textContent = '₹' + totalFloorsCost.toLocaleString('en-IN');
-            document.getElementById('summary-pillars-cost').textContent = '₹' + totalPillarsCost.toLocaleString('en-IN');
-            document.getElementById('summary-steps-cost').textContent = '₹' + totalStepsCost.toLocaleString('en-IN');
-            document.getElementById('summary-grand-total').textContent = '₹' + grandTotal.toLocaleString('en-IN');
+            document.getElementById('lbl-pillars-sub').textContent = '₹' + pillarsTotal.toLocaleString('en-IN');
+            document.getElementById('lbl-steps-sub').textContent = '₹' + stepsTotal.toLocaleString('en-IN');
+            document.getElementById('foot-grand-val').textContent = '₹' + grandTotal.toLocaleString('en-IN');
 
-            preparePrintPreview();
+            saveData();
         }
 
-        // Prepare Invoice Preview Document
-        function preparePrintPreview() {
-            document.getElementById('print-client-name').textContent = document.getElementById('client-name').value || '—';
-            document.getElementById('print-site-loc').textContent = document.getElementById('site-loc').value || '—';
-            document.getElementById('print-inv-no').textContent = document.getElementById('inv-no').value || '—';
-            document.getElementById('print-inv-date').textContent = document.getElementById('inv-date').value || '—';
+        function updatePrintPreview() {
+            const m = appData.meta;
+            document.getElementById('prn-client').textContent = m.client || '—';
+            document.getElementById('prn-site').textContent = m.site || '—';
+            document.getElementById('prn-no').textContent = m.invNo || 'EST-101';
+            document.getElementById('prn-date').textContent = m.date || '—';
 
-            let printFloorHtml = '';
-            let totalFloorsCost = 0;
+            let floorsHtml = '';
+            let floorsTot = 0;
 
-            floors.forEach(floor => {
-                let floorSqft = 0;
-                let rowsHtml = '';
+            appData.floors.forEach(fl => {
+                let fSqft = 0;
+                let rows = '';
 
-                floor.slabs.forEach((r, idx) => {
-                    const mult = getThicknessMultiplier(r.thicknessId);
-                    const calc = computeRow(r.l, r.b, mult);
-                    floorSqft += calc.effective;
-                    rowsHtml += `<tr><td>Slab #${idx + 1}</td><td>${r.l}m × ${r.b}m</td><td>× ${mult}</td><td class="col-mono">${calc.effective.toFixed(1)} sqft</td></tr>`;
-                });
-                floor.beams.forEach((r, idx) => {
-                    const calc = computeRow(r.l, r.b, 2);
-                    floorSqft += calc.effective;
-                    rowsHtml += `<tr><td>Beam #${idx + 1}</td><td>${r.l}m × ${r.b}m</td><td>× 2.0</td><td class="col-mono">${calc.effective.toFixed(1)} sqft</td></tr>`;
-                });
-                floor.lintels.forEach((r, idx) => {
-                    const calc = computeRow(r.l, r.b, 1.5);
-                    floorSqft += calc.effective;
-                    rowsHtml += `<tr><td>Lintel #${idx + 1}</td><td>${r.l}m × ${r.b}m</td><td>× 1.5</td><td class="col-mono">${calc.effective.toFixed(1)} sqft</td></tr>`;
-                });
-                floor.sunshades.forEach((r, idx) => {
-                    const calc = computeRow(r.l, r.b, 1);
-                    floorSqft += calc.effective;
-                    rowsHtml += `<tr><td>Sunshade #${idx + 1}</td><td>${r.l}m × ${r.b}m</td><td>× 1.0</td><td class="col-mono">${calc.effective.toFixed(1)} sqft</td></tr>`;
-                });
-                floor.layers.forEach((r, idx) => {
-                    const calc = computeRow(r.l, r.b, 1);
-                    floorSqft += calc.effective;
-                    rowsHtml += `<tr><td>Layer #${idx + 1}</td><td>${r.l}m × ${r.b}m</td><td>× 1.0</td><td class="col-mono">${calc.effective.toFixed(1)} sqft</td></tr>`;
-                });
-                floor.borders.forEach((r, idx) => {
-                    const direct = computeBorderRow(r.l);
-                    floorSqft += direct;
-                    rowsHtml += `<tr><td>Border #${idx + 1}</td><td>${r.l}m (Direct L)</td><td>—</td><td class="col-mono">${direct.toFixed(1)} sqft</td></tr>`;
-                });
+                const append = (name, l, b, mult, note) => {
+                    let eff = 0;
+                    if (note === 'Border') {
+                        eff = l * M_TO_FT;
+                        rows += `<tr><td>${name}</td><td>${l}m</td><td>Direct</td><td>${eff.toFixed(1)} sqft</td></tr>`;
+                    } else {
+                        const area = (l * M_TO_FT) * (b * M_TO_FT);
+                        eff = area * mult;
+                        rows += `<tr><td>${name}</td><td>${l}m × ${b}m</td><td>× ${mult}</td><td>${eff.toFixed(1)} sqft</td></tr>`;
+                    }
+                    fSqft += eff;
+                };
 
-                const cost = Math.round(floorSqft * floor.rate);
-                totalFloorsCost += cost;
+                fl.slabs.forEach((r, idx) => {
+                    const mObj = appData.slabMultipliers.find(item => item.id === r.thick);
+                    append(`Slab #${idx + 1}`, r.l, r.b, mObj ? mObj.multiplier : 1.0);
+                });
+                fl.beams.forEach((r, idx) => append(`Beam #${idx + 1}`, r.l, r.b, 2));
+                fl.lintels.forEach((r, idx) => append(`Lintel #${idx + 1}`, r.l, r.b, 1.5));
+                fl.sunshades.forEach((r, idx) => append(`Sunshade #${idx + 1}`, r.l, r.b, 1));
+                fl.layers.forEach((r, idx) => append(`Layer #${idx + 1}`, r.l, r.b, 1));
+                fl.borders.forEach((r, idx) => append(`Border #${idx + 1}`, r.l, 0, 1, 'Border'));
 
-                printFloorHtml += `
-          <div style="margin-top: 18px; margin-bottom: 8px; font-weight: 700; font-size: 0.95rem;">
-            ${floor.name} — <span style="font-weight: 500; color: var(--text-muted);">Rate: ₹${floor.rate}/sqft</span>
-          </div>
+                const cost = Math.round(fSqft * (fl.rate || 0));
+                floorsTot += cost;
+
+                floorsHtml += `
+          <div style="font-weight:700; font-size:0.9rem; margin-top:10px;">${fl.name} (Rate: ₹${fl.rate}/sqft)</div>
           <table class="inv-table">
-            <thead><tr><th>Category Item</th><th>Dimensions</th><th>Multiplier</th><th>Effective Sqft</th></tr></thead>
-            <tbody>${rowsHtml || '<tr><td colspan="4">No items recorded</td></tr>'}</tbody>
+            <thead><tr><th>Item</th><th>Dim</th><th>Mult</th><th>Sqft</th></tr></thead>
+            <tbody>${rows || '<tr><td colspan="4">No items</td></tr>'}</tbody>
             <tfoot>
-              <tr style="background: #fafafa; font-weight: 700;">
-                <td colspan="3" style="text-align: right;">${floor.name} Subtotal:</td>
-                <td class="col-mono">${floorSqft.toFixed(1)} sqft (₹${cost.toLocaleString('en-IN')})</td>
+              <tr style="font-weight:700; background:#f8fafc;">
+                <td colspan="3" style="text-align:right;">Subtotal:</td>
+                <td>${fSqft.toFixed(1)} sqft (₹${cost.toLocaleString('en-IN')})</td>
               </tr>
             </tfoot>
           </table>
         `;
             });
 
-            document.getElementById('print-floors-breakdown').innerHTML = printFloorHtml;
+            document.getElementById('prn-floors-table').innerHTML = floorsHtml;
 
-            const totalPillars = pillars.reduce((a, b) => a + (parseFloat(b) || 0), 0);
-            const totalSteps = steps.reduce((a, b) => a + (parseFloat(b) || 0), 0);
-            const grand = totalFloorsCost + totalPillars + totalSteps;
+            const pTot = appData.pillars.reduce((a, b) => a + (parseFloat(b) || 0), 0);
+            const sTot = appData.steps.reduce((a, b) => a + (parseFloat(b) || 0), 0);
+            const unitsTot = pTot + sTot;
 
-            let pillarStepHtml = `
-        <div style="margin-top: 18px; margin-bottom: 8px; font-weight: 700; font-size: 0.95rem;">Pillars & Steps Flat Unit Summary</div>
+            document.getElementById('prn-units-table').innerHTML = `
+        <div style="font-weight:700; font-size:0.9rem; margin-top:10px;">Pillars & Steps Flat Units</div>
         <table class="inv-table">
-          <thead><tr><th>Description</th><th>Quantity</th><th>Subtotal</th></tr></thead>
+          <thead><tr><th>Item</th><th>Qty</th><th>Total</th></tr></thead>
           <tbody>
-            <tr><td>Concrete Pillars (Manual Unit Rates)</td><td>${pillars.length} Units</td><td class="col-mono">₹${totalPillars.toLocaleString('en-IN')}</td></tr>
-            <tr><td>Steps & Stairs (Manual Unit Rates)</td><td>${steps.length} Steps</td><td class="col-mono">₹${totalSteps.toLocaleString('en-IN')}</td></tr>
+            <tr><td>Pillars</td><td>${appData.pillars.length} pcs</td><td>₹${pTot.toLocaleString('en-IN')}</td></tr>
+            <tr><td>Steps</td><td>${appData.steps.length} pcs</td><td>₹${sTot.toLocaleString('en-IN')}</td></tr>
           </tbody>
         </table>
       `;
 
-            document.getElementById('print-pillars-steps-section').innerHTML = pillarStepHtml;
-
-            document.getElementById('print-total-floors').textContent = '₹' + totalFloorsCost.toLocaleString('en-IN');
-            document.getElementById('print-total-pillars').textContent = '₹' + totalPillars.toLocaleString('en-IN');
-            document.getElementById('print-total-steps').textContent = '₹' + totalSteps.toLocaleString('en-IN');
-            document.getElementById('print-total-grand').textContent = '₹' + grand.toLocaleString('en-IN');
+            document.getElementById('prn-floors-total').textContent = '₹' + floorsTot.toLocaleString('en-IN');
+            document.getElementById('prn-units-total').textContent = '₹' + unitsTot.toLocaleString('en-IN');
+            document.getElementById('prn-grand-total').textContent = '₹' + (floorsTot + unitsTot).toLocaleString('en-IN');
         }
 
         function renderAll() {
-            renderMultiplierTable();
+            document.getElementById('meta-client').value = appData.meta.client || '';
+            document.getElementById('meta-site').value = appData.meta.site || '';
+            document.getElementById('meta-no').value = appData.meta.invNo || 'EST-101';
+            document.getElementById('meta-date').value = appData.meta.date || '';
+
+            renderMultipliers();
             renderFloors();
             renderPillars();
             renderSteps();
-            recalculateGrandTotals();
+            recalculate();
         }
 
-        window.addEventListener('DOMContentLoaded', loadState);
+        window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 
