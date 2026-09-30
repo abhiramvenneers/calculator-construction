@@ -4,7 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Concrete Calculator & Invoice</title>
+    <title>Concrete Pro — Estimator & Firebase Console</title>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -24,6 +30,7 @@
             --accent-hover: #1d4ed8;
             --success: #10b981;
             --danger: #ef4444;
+            --danger-soft: rgba(239, 68, 68, 0.15);
             --font-mono: 'JetBrains Mono', monospace;
             --radius: 12px;
             --radius-sm: 8px;
@@ -44,11 +51,11 @@
             padding-bottom: 110px;
         }
 
-        /* Mobile Header */
+        /* Top Sticky Header */
         .top-bar {
             position: sticky;
             top: 0;
-            background: rgba(15, 23, 42, 0.88);
+            background: rgba(15, 23, 42, 0.92);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border);
@@ -70,14 +77,37 @@
             color: var(--text-muted);
         }
 
-        /* Container */
+        .sync-pill {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .sync-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #94a3b8;
+        }
+
+        .sync-dot.online {
+            background: var(--success);
+            box-shadow: 0 0 6px var(--success);
+        }
+
         .app-wrap {
             max-width: 600px;
             margin: 0 auto;
             padding: 12px;
         }
 
-        /* Segmented Tab Switcher */
         .tab-pills {
             display: flex;
             background: var(--surface);
@@ -90,14 +120,15 @@
 
         .tab-btn {
             flex: 1;
-            padding: 8px;
-            font-size: 0.82rem;
+            padding: 8px 4px;
+            font-size: 0.78rem;
             font-weight: 600;
             color: var(--text-muted);
             border: none;
             background: transparent;
             border-radius: var(--radius-sm);
             cursor: pointer;
+            text-align: center;
         }
 
         .tab-btn.active {
@@ -105,7 +136,6 @@
             color: #fff;
         }
 
-        /* Card Wrapper */
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -123,7 +153,6 @@
             margin-bottom: 10px;
         }
 
-        /* Form Fields */
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -165,7 +194,6 @@
             border-color: var(--border-focus);
         }
 
-        /* Buttons */
         .btn {
             height: 38px;
             padding: 0 12px;
@@ -191,7 +219,7 @@
         }
 
         .btn-danger {
-            background: rgba(239, 68, 68, 0.15);
+            background: var(--danger-soft);
             color: var(--danger);
             border: 1px solid rgba(239, 68, 68, 0.3);
         }
@@ -208,7 +236,6 @@
             margin-top: 6px;
         }
 
-        /* Compact Entry Cards (Replaces wide desktop tables) */
         .row-card {
             background: var(--surface-card);
             border: 1px solid var(--border);
@@ -218,6 +245,11 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+        }
+
+        .row-card.deduction-card {
+            border-left: 3px solid var(--danger);
+            background: rgba(239, 68, 68, 0.03);
         }
 
         .row-card-top {
@@ -240,7 +272,6 @@
             font-weight: 600;
         }
 
-        /* Floor Specifics */
         .floor-head {
             display: flex;
             justify-content: space-between;
@@ -261,6 +292,10 @@
             align-items: center;
         }
 
+        .subcat-label.deduction-label {
+            color: #f87171;
+        }
+
         .floor-footer {
             background: rgba(0, 0, 0, 0.35);
             border: 1px solid var(--border);
@@ -269,10 +304,25 @@
             margin-top: 14px;
             display: flex;
             flex-direction: column;
+            gap: 6px;
+        }
+
+        .draft-item {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
             gap: 8px;
         }
 
-        /* Fixed Bottom Action Bar */
+        .draft-item.active-draft {
+            border-left: 4px solid var(--accent);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
         .sticky-foot {
             position: fixed;
             bottom: 0;
@@ -304,7 +354,6 @@
             font-family: var(--font-mono);
         }
 
-        /* Printable Invoice (A4 Standard) */
         #print-section {
             display: none;
             background: #fff;
@@ -323,6 +372,8 @@
             .top-bar,
             .sticky-foot,
             #edit-section,
+            #cloud-section,
+            #drafts-section,
             .btn {
                 display: none !important;
             }
@@ -350,51 +401,81 @@
         .inv-table th {
             background: #f1f5f9;
         }
+
+        .toast {
+            position: fixed;
+            bottom: 75px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: #334155;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.78rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s ease;
+            z-index: 100;
+        }
+
+        .toast.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
     </style>
 </head>
 
 <body>
 
-    <!-- Sticky Top Header -->
+    <!-- Top Sticky Header -->
     <header class="top-bar">
         <div>
             <div class="brand-title">Concrete Pro</div>
-            <div class="brand-sub">Estimator & Client Bill</div>
+            <div class="brand-sub" id="headerActiveDraftName">Site: Loading...</div>
         </div>
-        <div style="display: flex; gap: 6px;">
-            <button class="btn btn-secondary btn-sm" onclick="resetForm()">Reset</button>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="sync-pill" onclick="setTab('cloud')">
+                <span class="sync-dot" id="headerSyncDot"></span>
+                <span id="headerSyncText">Local</span>
+            </div>
             <button class="btn btn-primary btn-sm" onclick="printDoc()">🖨️ PDF</button>
         </div>
     </header>
 
     <main class="app-wrap">
-        <!-- View Switcher -->
+        <!-- View Switcher Tabs -->
         <div class="tab-pills">
             <button class="tab-btn active" id="tab-btn-edit" onclick="setTab('edit')">Calculator</button>
-            <button class="tab-btn" id="tab-btn-inv" onclick="setTab('inv')">Invoice Preview</button>
+            <button class="tab-btn" id="tab-btn-drafts" onclick="setTab('drafts')">Saved Sites</button>
+            <button class="tab-btn" id="tab-btn-inv" onclick="setTab('inv')">Invoice</button>
+            <button class="tab-btn" id="tab-btn-cloud" onclick="setTab('cloud')">Firebase</button>
         </div>
 
         <!-- TAB 1: Mobile Calculator -->
         <div id="edit-section">
-            <!-- Client & Site Details -->
             <div class="card">
-                <div class="card-title">Project Details</div>
+                <div class="card-title">
+                    <span>Active Site Info</span>
+                    <button class="btn btn-secondary btn-sm" onclick="saveAsNewDraft()">Save as Draft</button>
+                </div>
                 <div class="field-group" style="margin-bottom: 8px;">
-                    <label>Client Name</label>
-                    <input type="text" id="meta-client" placeholder="e.g. Ramesh Kumar" oninput="saveData()">
+                    <label>Site / Client Name</label>
+                    <input type="text" id="meta-client" placeholder="e.g. Ramesh Kumar (Plot 42)"
+                        oninput="saveCurrentData()">
                 </div>
                 <div class="field-group" style="margin-bottom: 8px;">
                     <label>Site Location</label>
-                    <input type="text" id="meta-site" placeholder="e.g. Plot #42, Main Road" oninput="saveData()">
+                    <input type="text" id="meta-site" placeholder="e.g. Sector 5, Main Road"
+                        oninput="saveCurrentData()">
                 </div>
                 <div class="form-row" style="margin-bottom: 0;">
                     <div class="field-group">
                         <label>Bill / Est #</label>
-                        <input type="text" id="meta-no" placeholder="EST-101" oninput="saveData()">
+                        <input type="text" id="meta-no" placeholder="EST-101" oninput="saveCurrentData()">
                     </div>
                     <div class="field-group">
                         <label>Date</label>
-                        <input type="date" id="meta-date" oninput="saveData()">
+                        <input type="date" id="meta-date" oninput="saveCurrentData()">
                     </div>
                 </div>
             </div>
@@ -422,7 +503,7 @@
                 </div>
                 <div id="pillars-list"></div>
                 <div style="text-align: right; font-size: 0.8rem; margin: 4px 0 10px 0;">
-                    Pillars: <span class="mono" id="lbl-pillars-sub">₹0</span>
+                    Pillars Subtotal: <span class="mono" id="lbl-pillars-sub">₹0</span>
                 </div>
 
                 <div class="subcat-label">
@@ -431,12 +512,27 @@
                 </div>
                 <div id="steps-list"></div>
                 <div style="text-align: right; font-size: 0.8rem; margin-top: 4px;">
-                    Steps: <span class="mono" id="lbl-steps-sub">₹0</span>
+                    Steps Subtotal: <span class="mono" id="lbl-steps-sub">₹0</span>
                 </div>
             </div>
         </div>
 
-        <!-- TAB 2: Mobile/A4 Invoice Preview -->
+        <!-- TAB 2: Site Drafts Manager -->
+        <div id="drafts-section" style="display: none;">
+            <div class="card">
+                <div class="card-title">
+                    <span>Saved Site Measurements</span>
+                    <button class="btn btn-primary btn-sm" onclick="createNewBlankSite()">+ New Site</button>
+                </div>
+                <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">
+                    Manage multiple sites independently. Tap any site below to edit its measurements.
+                </p>
+
+                <div id="drafts-list-container"></div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Printable Invoice Preview -->
         <div id="print-section">
             <div
                 style="display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
@@ -460,7 +556,7 @@
             <div id="prn-units-table"></div>
 
             <div
-                style="margin-top: 14px; border: 1px solid #000; padding: 10px; border-radius: 6px; font-size: 0.88rem; width: 260px; margin-left: auto;">
+                style="margin-top: 14px; border: 1px solid #000; padding: 10px; border-radius: 6px; font-size: 0.88rem; width: 270px; margin-left: auto;">
                 <div style="display: flex; justify-content: space-between;">
                     <span>Floors Total:</span> <strong id="prn-floors-total">₹0</strong>
                 </div>
@@ -473,9 +569,45 @@
                 </div>
             </div>
         </div>
+
+        <!-- TAB 4: Firebase Console Direct Sync -->
+        <div id="cloud-section" style="display: none;">
+            <div class="card">
+                <div class="card-title">Firebase Console Cloud Sync</div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px;">
+                    Directly stores all concrete measurements and drafts into your Firebase Console.
+                </p>
+
+                <div class="field-group" style="margin-bottom: 10px;">
+                    <label>Company / Project Name (Database Key)</label>
+                    <div style="display: flex; gap: 6px;">
+                        <input type="text" id="cloudProjectName" placeholder="e.g. apex-concrete" style="flex:1;">
+                        <button class="btn btn-secondary btn-sm" onclick="generateRandomProject()">Random</button>
+                    </div>
+                </div>
+
+                <div class="field-group" style="margin-bottom: 14px;">
+                    <label>Firebase Database URL</label>
+                    <input type="text" id="cloudDbUrl" placeholder="https://your-db-default-rtdb.firebaseio.com/">
+                </div>
+
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-primary" style="flex: 1;" onclick="connectFirebase()">Connect & Sync</button>
+                    <button class="btn btn-danger" onclick="disconnectFirebase()">Disconnect</button>
+                </div>
+
+                <div
+                    style="margin-top: 16px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); font-size: 0.78rem;">
+                    <div><strong>Status:</strong> <span id="cloudStatusLabel" style="color: var(--text-muted);">Not
+                            Connected</span></div>
+                    <div style="margin-top: 4px;"><strong>Firebase Console Path:</strong> <span class="mono"
+                            id="cloudActivePath">None</span></div>
+                </div>
+            </div>
+        </div>
     </main>
 
-    <!-- Sticky Thumb Summary Bar -->
+    <!-- Sticky Bottom Bar -->
     <div class="sticky-foot">
         <div>
             <div class="foot-total-lbl">Grand Total</div>
@@ -484,38 +616,26 @@
         <button class="btn btn-primary" onclick="printDoc()">Share / Print</button>
     </div>
 
+    <div class="toast" id="toastBox">Saved Draft</div>
+
     <script>
-        // 1 meter = 3.28084 feet
         const M_TO_FT = 3.28084;
 
-        let appData = {
-            meta: { client: '', site: '', invNo: 'EST-101', date: '' },
-            slabMultipliers: [
-                { id: '4in', label: '4"', multiplier: 1.0 },
-                { id: '5in', label: '5"', multiplier: 1.25 },
-                { id: '6in', label: '6"', multiplier: 1.5 }
-            ],
-            floors: [],
-            pillars: [],
-            steps: []
-        };
+        let siteDrafts = [];
+        let activeSiteId = '';
 
-        function init() {
-            const saved = localStorage.getItem('concrete_mobile_data');
-            if (saved) {
-                try { appData = JSON.parse(saved); } catch (e) { resetForm(); }
-            } else {
-                resetForm();
-            }
-            renderAll();
-        }
+        let firebaseConfig = { projectName: '', dbUrl: '' };
+        let firebaseDb = null;
+        let cloudListener = null;
 
-        function resetForm() {
-            appData = {
+        function getDefaultSiteTemplate(name = 'New Site Estimate') {
+            return {
+                id: 'site_' + Date.now(),
+                updatedAt: Date.now(),
                 meta: {
-                    client: 'Ramesh Kumar',
-                    site: 'Plot #42, Main Site',
-                    invNo: 'EST-101',
+                    client: name,
+                    site: 'Main Road',
+                    invNo: 'EST-' + Math.floor(Math.random() * 899 + 100),
                     date: new Date().toISOString().split('T')[0]
                 },
                 slabMultipliers: [
@@ -532,32 +652,91 @@
                         lintels: [{ l: 5, b: 0.25 }, { l: 3, b: 0.25 }],
                         sunshades: [{ l: 3, b: 0.6 }, { l: 2, b: 0.6 }],
                         layers: [{ l: 4, b: 3.5 }, { l: 2, b: 0.6 }, { l: 5, b: 2 }],
-                        borders: []
+                        borders: [],
+                        deductions: [{ l: 2, b: 1, note: 'Step cutout' }]
                     }
                 ],
                 pillars: [10000, 10000, 10000, 10000, 10000, 10000],
                 steps: Array(12).fill(1000)
             };
-            saveData();
-            renderAll();
         }
 
-        function saveData() {
-            appData.meta.client = document.getElementById('meta-client').value;
-            appData.meta.site = document.getElementById('meta-site').value;
-            appData.meta.invNo = document.getElementById('meta-no').value;
-            appData.meta.date = document.getElementById('meta-date').value;
-            localStorage.setItem('concrete_mobile_data', JSON.stringify(appData));
+        function init() {
+            const savedConfig = localStorage.getItem('concrete_standalone_fb_config');
+            if (savedConfig) {
+                try { firebaseConfig = JSON.parse(savedConfig); } catch (e) { }
+            }
+            document.getElementById('cloudProjectName').value = firebaseConfig.projectName || '';
+            document.getElementById('cloudDbUrl').value = firebaseConfig.dbUrl || '';
+
+            const savedDrafts = localStorage.getItem('concrete_all_site_drafts');
+            if (savedDrafts) {
+                try { siteDrafts = JSON.parse(savedDrafts); } catch (e) { siteDrafts = []; }
+            }
+
+            if (!siteDrafts || siteDrafts.length === 0) {
+                const initial = getDefaultSiteTemplate('Plot #42 Civil Lines');
+                siteDrafts = [initial];
+                activeSiteId = initial.id;
+            } else {
+                activeSiteId = localStorage.getItem('concrete_active_site_id') || siteDrafts[0].id;
+                if (!siteDrafts.some(s => s.id === activeSiteId)) {
+                    activeSiteId = siteDrafts[0].id;
+                }
+            }
+
+            renderAll();
+
+            if (firebaseConfig.projectName) {
+                setTimeout(connectFirebase, 400);
+            }
+        }
+
+        function getActiveSite() {
+            return siteDrafts.find(s => s.id === activeSiteId) || siteDrafts[0];
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toastBox');
+            t.textContent = msg;
+            t.classList.add('active');
+            setTimeout(() => t.classList.remove('active'), 2000);
+        }
+
+        function saveCurrentData() {
+            const site = getActiveSite();
+            const cEl = document.getElementById('meta-client');
+            const sEl = document.getElementById('meta-site');
+            const nEl = document.getElementById('meta-no');
+            const dEl = document.getElementById('meta-date');
+
+            if (cEl) site.meta.client = cEl.value;
+            if (sEl) site.meta.site = sEl.value;
+            if (nEl) site.meta.invNo = nEl.value;
+            if (dEl) site.meta.date = dEl.value;
+            site.updatedAt = Date.now();
+
+            localStorage.setItem('concrete_all_site_drafts', JSON.stringify(siteDrafts));
+            localStorage.setItem('concrete_active_site_id', activeSiteId);
+
+            document.getElementById('headerActiveDraftName').textContent = `Site: ${site.meta.client || 'Draft'}`;
             updatePrintPreview();
+            pushToFirebase();
         }
 
         function setTab(tab) {
-            const isEdit = tab === 'edit';
-            document.getElementById('edit-section').style.display = isEdit ? 'block' : 'none';
-            document.getElementById('print-section').style.display = isEdit ? 'none' : 'block';
-            document.getElementById('tab-btn-edit').classList.toggle('active', isEdit);
-            document.getElementById('tab-btn-inv').classList.toggle('active', !isEdit);
-            if (!isEdit) updatePrintPreview();
+            document.getElementById('edit-section').style.display = tab === 'edit' ? 'block' : 'none';
+            document.getElementById('drafts-section').style.display = tab === 'drafts' ? 'block' : 'none';
+            document.getElementById('print-section').style.display = tab === 'inv' ? 'block' : 'none';
+            document.getElementById('cloud-section').style.display = tab === 'cloud' ? 'block' : 'none';
+
+            document.getElementById('tab-btn-edit').classList.toggle('active', tab === 'edit');
+            document.getElementById('tab-btn-drafts').classList.toggle('active', tab === 'drafts');
+            document.getElementById('tab-btn-inv').classList.toggle('active', tab === 'inv');
+            document.getElementById('tab-btn-cloud').classList.toggle('active', tab === 'cloud');
+
+            if (tab === 'drafts') renderDraftsList();
+            if (tab === 'inv') updatePrintPreview();
         }
 
         function printDoc() {
@@ -565,134 +744,281 @@
             window.print();
         }
 
+        /* Site Drafts Operations */
+        function renderDraftsList() {
+            const wrap = document.getElementById('drafts-list-container');
+            wrap.innerHTML = '';
+
+            if (siteDrafts.length === 0) {
+                wrap.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:20px;">No saved drafts.</div>';
+                return;
+            }
+
+            siteDrafts.forEach(draft => {
+                const isActive = draft.id === activeSiteId;
+                const total = calculateSiteGrandTotal(draft);
+
+                const div = document.createElement('div');
+                div.className = `draft-item ${isActive ? 'active-draft' : ''}`;
+                div.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div style="font-weight:700; font-size:0.95rem; color:var(--text);">${draft.meta.client || 'Untitled Site'}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">${draft.meta.site || 'No location set'} • ${draft.meta.date || ''}</div>
+            </div>
+            <div style="text-align:right;">
+              <span class="mono" style="font-size:1.05rem; font-weight:700; color:var(--success);">₹${total.toLocaleString('en-IN')}</span>
+              <div style="font-size:0.68rem; color:var(--text-muted);">${draft.floors.length} Floors</div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:6px; margin-top:4px;">
+            <button class="btn btn-primary btn-sm" style="flex:1;" onclick="loadDraft('${draft.id}')">
+              ${isActive ? 'Editing Current' : 'Load / Edit'}
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="duplicateDraft('${draft.id}')">Copy</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteDraft('${draft.id}')" ${siteDrafts.length <= 1 ? 'disabled' : ''}>Delete</button>
+          </div>
+        `;
+                wrap.appendChild(div);
+            });
+        }
+
+        function loadDraft(id) {
+            activeSiteId = id;
+            localStorage.setItem('concrete_active_site_id', activeSiteId);
+            renderAll();
+            setTab('edit');
+            showToast('Loaded site draft');
+        }
+
+        function createNewBlankSite() {
+            const name = prompt('Enter new site or client name:', 'New Site');
+            if (!name) return;
+
+            const newSite = getDefaultSiteTemplate(name);
+            siteDrafts.unshift(newSite);
+            activeSiteId = newSite.id;
+            saveCurrentData();
+            renderAll();
+            setTab('edit');
+            showToast('New site draft created');
+        }
+
+        function saveAsNewDraft() {
+            const current = getActiveSite();
+            const newName = prompt('Save copy as new site name:', (current.meta.client || 'Site') + ' (Copy)');
+            if (!newName) return;
+
+            const copy = JSON.parse(JSON.stringify(current));
+            copy.id = 'site_' + Date.now();
+            copy.meta.client = newName;
+            copy.updatedAt = Date.now();
+
+            siteDrafts.unshift(copy);
+            activeSiteId = copy.id;
+            saveCurrentData();
+            renderAll();
+            showToast('Saved copy as new draft');
+        }
+
+        function duplicateDraft(id) {
+            const source = siteDrafts.find(s => s.id === id);
+            if (!source) return;
+
+            const copy = JSON.parse(JSON.stringify(source));
+            copy.id = 'site_' + Date.now();
+            copy.meta.client = (source.meta.client || 'Site') + ' (Copy)';
+            copy.updatedAt = Date.now();
+
+            siteDrafts.unshift(copy);
+            saveCurrentData();
+            renderDraftsList();
+            showToast('Draft duplicated');
+        }
+
+        function deleteDraft(id) {
+            if (siteDrafts.length <= 1) {
+                alert('You must have at least one site draft.');
+                return;
+            }
+            if (!confirm('Are you sure you want to delete this site draft?')) return;
+
+            siteDrafts = siteDrafts.filter(s => s.id !== id);
+            if (activeSiteId === id) activeSiteId = siteDrafts[0].id;
+            saveCurrentData();
+            renderAll();
+            renderDraftsList();
+            showToast('Site draft deleted');
+        }
+
         /* Slab Multipliers */
         function renderMultipliers() {
+            const site = getActiveSite();
             const wrap = document.getElementById('thickness-list');
-            wrap.innerHTML = appData.slabMultipliers.map((m, idx) => `
+            wrap.innerHTML = site.slabMultipliers.map((m, idx) => `
         <div style="display:flex; gap:6px; margin-bottom:6px;">
-          <input type="text" value="${m.label}" style="flex:1;" onchange="appData.slabMultipliers[${idx}].label=this.value; saveData(); renderFloors();">
-          <input type="number" step="0.05" value="${m.multiplier}" style="width:90px;" oninput="appData.slabMultipliers[${idx}].multiplier=parseFloat(this.value)||0; saveData(); renderFloors();">
-          <button class="btn btn-danger btn-sm" onclick="appData.slabMultipliers.splice(${idx},1); saveData(); renderMultipliers(); renderFloors();">×</button>
+          <input type="text" value="${m.label}" style="flex:1;" onchange="getActiveSite().slabMultipliers[${idx}].label=this.value; saveCurrentData(); renderFloors();">
+          <input type="number" step="0.05" value="${m.multiplier}" style="width:90px;" oninput="getActiveSite().slabMultipliers[${idx}].multiplier=parseFloat(this.value)||0; saveCurrentData(); renderFloors();">
+          <button class="btn btn-danger btn-sm" onclick="getActiveSite().slabMultipliers.splice(${idx},1); saveCurrentData(); renderMultipliers(); renderFloors();">×</button>
         </div>
       `).join('');
         }
 
         function addThicknessRule() {
-            appData.slabMultipliers.push({ id: 'th_' + Date.now(), label: 'Custom', multiplier: 1.0 });
-            saveData();
+            getActiveSite().slabMultipliers.push({ id: 'th_' + Date.now(), label: 'Custom', multiplier: 1.0 });
+            saveCurrentData();
             renderMultipliers();
             renderFloors();
         }
 
         /* Floors */
         function addFloor() {
-            appData.floors.push({
-                name: `${appData.floors.length + 1}th Floor`,
+            const site = getActiveSite();
+            site.floors.push({
+                name: `${site.floors.length + 1}th Floor`,
                 rate: 180,
-                slabs: [], beams: [], lintels: [], sunshades: [], layers: [], borders: []
+                slabs: [], beams: [], lintels: [], sunshades: [], layers: [], borders: [], deductions: []
             });
-            saveData();
+            saveCurrentData();
             renderFloors();
         }
 
         function addRow(fIdx, cat) {
+            const site = getActiveSite();
+            if (!site.floors[fIdx][cat]) site.floors[fIdx][cat] = [];
+
             if (cat === 'slabs') {
-                const def = appData.slabMultipliers[0] ? appData.slabMultipliers[0].id : '';
-                appData.floors[fIdx].slabs.push({ l: 0, b: 0, thick: def });
+                const def = site.slabMultipliers[0] ? site.slabMultipliers[0].id : '';
+                site.floors[fIdx].slabs.push({ l: 0, b: 0, thick: def });
             } else if (cat === 'borders') {
-                appData.floors[fIdx].borders.push({ l: 0 });
+                site.floors[fIdx].borders.push({ l: 0 });
+            } else if (cat === 'deductions') {
+                site.floors[fIdx].deductions.push({ l: 0, b: 0, note: '' });
             } else {
-                appData.floors[fIdx][cat].push({ l: 0, b: 0 });
+                site.floors[fIdx][cat].push({ l: 0, b: 0 });
             }
-            saveData();
+            saveCurrentData();
             renderFloors();
         }
 
         function removeRow(fIdx, cat, rIdx) {
-            appData.floors[fIdx][cat].splice(rIdx, 1);
-            saveData();
+            getActiveSite().floors[fIdx][cat].splice(rIdx, 1);
+            saveCurrentData();
             renderFloors();
         }
 
-        function renderFloors() {
-            const container = document.getElementById('floors-container');
-            container.innerHTML = appData.floors.map((fl, fIdx) => {
-                let fSqft = 0;
+        function updateRowField(fIdx, cat, rIdx, field, val) {
+            const site = getActiveSite();
+            if (field === 'thick' || field === 'note') {
+                site.floors[fIdx][cat][rIdx][field] = val;
+            } else {
+                site.floors[fIdx][cat][rIdx][field] = parseFloat(val) || 0;
+            }
+            recalculate();
+        }
 
-                // Render Slabs
+        function renderFloors() {
+            const site = getActiveSite();
+            const container = document.getElementById('floors-container');
+
+            container.innerHTML = site.floors.map((fl, fIdx) => {
+                if (!fl.deductions) fl.deductions = [];
+
+                let fGrossSqft = 0;
+                let fDeductSqft = 0;
+
                 const slabCards = fl.slabs.map((r, rIdx) => {
-                    const multObj = appData.slabMultipliers.find(m => m.id === r.thick);
+                    const multObj = site.slabMultipliers.find(m => m.id === r.thick);
                     const mult = multObj ? multObj.multiplier : 1.0;
                     const area = (r.l * M_TO_FT) * (r.b * M_TO_FT);
                     const eff = area * mult;
-                    fSqft += eff;
+                    fGrossSqft += eff;
 
-                    const opts = appData.slabMultipliers.map(m =>
+                    const opts = site.slabMultipliers.map(m =>
                         `<option value="${m.id}" ${m.id === r.thick ? 'selected' : ''}>${m.label} (×${m.multiplier})</option>`
                     ).join('');
 
                     return `
             <div class="row-card">
               <div class="row-card-top">
-                <input type="number" step="0.01" placeholder="L (m)" value="${r.l || ''}" oninput="fl.slabs[${rIdx}].l=parseFloat(this.value)||0; recalculate();">
-                <input type="number" step="0.01" placeholder="B (m)" value="${r.b || ''}" oninput="fl.slabs[${rIdx}].b=parseFloat(this.value)||0; recalculate();">
-                <select onchange="fl.slabs[${rIdx}].thick=this.value; recalculate();">${opts}</select>
+                <input type="number" step="0.01" placeholder="L (m)" value="${r.l || ''}" oninput="updateRowField(${fIdx}, 'slabs', ${rIdx}, 'l', this.value)">
+                <input type="number" step="0.01" placeholder="B (m)" value="${r.b || ''}" oninput="updateRowField(${fIdx}, 'slabs', ${rIdx}, 'b', this.value)">
+                <select onchange="updateRowField(${fIdx}, 'slabs', ${rIdx}, 'thick', this.value)">${opts}</select>
                 <button class="btn btn-danger btn-sm" onclick="removeRow(${fIdx},'slabs',${rIdx})">×</button>
               </div>
               <div class="row-card-sub">
-                <span>Area: <strong class="mono">${area.toFixed(1)}</strong> sqft</span>
-                <span>Effective: <strong class="mono" style="color:var(--accent);">${eff.toFixed(1)}</strong> sqft</span>
+                <span>Area: <strong class="mono" id="slab-area-${fIdx}-${rIdx}">${area.toFixed(1)}</strong> sqft</span>
+                <span>Effective: <strong class="mono" style="color:var(--accent);" id="slab-eff-${fIdx}-${rIdx}">${eff.toFixed(1)}</strong> sqft</span>
               </div>
             </div>
           `;
                 }).join('');
 
-                // Standard categories generator
                 const makeStdCards = (cat, mult) => fl[cat].map((r, rIdx) => {
                     const area = (r.l * M_TO_FT) * (r.b * M_TO_FT);
                     const eff = area * mult;
-                    fSqft += eff;
+                    fGrossSqft += eff;
 
                     return `
             <div class="row-card">
               <div class="row-card-top">
-                <input type="number" step="0.01" placeholder="L (m)" value="${r.l || ''}" oninput="fl.${cat}[${rIdx}].l=parseFloat(this.value)||0; recalculate();">
-                <input type="number" step="0.01" placeholder="B (m)" value="${r.b || ''}" oninput="fl.${cat}[${rIdx}].b=parseFloat(this.value)||0; recalculate();">
+                <input type="number" step="0.01" placeholder="L (m)" value="${r.l || ''}" oninput="updateRowField(${fIdx}, '${cat}', ${rIdx}, 'l', this.value)">
+                <input type="number" step="0.01" placeholder="B (m)" value="${r.b || ''}" oninput="updateRowField(${fIdx}, '${cat}', ${rIdx}, 'b', this.value)">
                 <button class="btn btn-danger btn-sm" onclick="removeRow(${fIdx},'${cat}',${rIdx})">×</button>
               </div>
               <div class="row-card-sub">
-                <span>Area: <strong class="mono">${area.toFixed(1)}</strong> sqft</span>
-                <span>Effective (×${mult}): <strong class="mono" style="color:var(--accent);">${eff.toFixed(1)}</strong> sqft</span>
+                <span>Area: <strong class="mono" id="${cat}-area-${fIdx}-${rIdx}">${area.toFixed(1)}</strong> sqft</span>
+                <span>Effective (×${mult}): <strong class="mono" style="color:var(--accent);" id="${cat}-eff-${fIdx}-${rIdx}">${eff.toFixed(1)}</strong> sqft</span>
               </div>
             </div>
           `;
                 }).join('');
 
-                // Borders generator
                 const borderCards = fl.borders.map((r, rIdx) => {
                     const direct = r.l * M_TO_FT;
-                    fSqft += direct;
+                    fGrossSqft += direct;
                     return `
             <div class="row-card">
               <div class="row-card-top">
-                <input type="number" step="0.01" placeholder="Length (m)" value="${r.l || ''}" oninput="fl.borders[${rIdx}].l=parseFloat(this.value)||0; recalculate();">
+                <input type="number" step="0.01" placeholder="Length (m)" value="${r.l || ''}" oninput="updateRowField(${fIdx}, 'borders', ${rIdx}, 'l', this.value)">
                 <button class="btn btn-danger btn-sm" onclick="removeRow(${fIdx},'borders',${rIdx})">×</button>
               </div>
               <div class="row-card-sub">
                 <span>Direct ft Conversion</span>
-                <span>Sqft: <strong class="mono" style="color:var(--accent);">${direct.toFixed(1)}</strong> sqft</span>
+                <span>Sqft: <strong class="mono" style="color:var(--accent);" id="borders-eff-${fIdx}-${rIdx}">${direct.toFixed(1)}</strong> sqft</span>
               </div>
             </div>
           `;
                 }).join('');
 
-                const fCost = Math.round(fSqft * (fl.rate || 0));
+                const deductionCards = fl.deductions.map((r, rIdx) => {
+                    const cutArea = (r.l * M_TO_FT) * (r.b * M_TO_FT);
+                    fDeductSqft += cutArea;
+                    return `
+            <div class="row-card deduction-card">
+              <div class="row-card-top">
+                <input type="number" step="0.01" placeholder="Cut L (m)" value="${r.l || ''}" oninput="updateRowField(${fIdx}, 'deductions', ${rIdx}, 'l', this.value)">
+                <input type="number" step="0.01" placeholder="Cut B (m)" value="${r.b || ''}" oninput="updateRowField(${fIdx}, 'deductions', ${rIdx}, 'b', this.value)">
+                <input type="text" placeholder="Note (e.g. Step Cut)" value="${r.note || ''}" oninput="updateRowField(${fIdx}, 'deductions', ${rIdx}, 'note', this.value)" style="flex:1;">
+                <button class="btn btn-danger btn-sm" onclick="removeRow(${fIdx},'deductions',${rIdx})">×</button>
+              </div>
+              <div class="row-card-sub">
+                <span>Corner/Void Cutout</span>
+                <span>Minus: <strong class="mono" style="color:var(--danger);" id="deduct-eff-${fIdx}-${rIdx}">-${cutArea.toFixed(1)}</strong> sqft</span>
+              </div>
+            </div>
+          `;
+                }).join('');
+
+                const netSqft = Math.max(0, fGrossSqft - fDeductSqft);
+                const fCost = Math.round(netSqft * (fl.rate || 0));
 
                 return `
           <div class="card">
             <div class="floor-head">
-              <input type="text" value="${fl.name}" style="background:transparent; border:none; font-size:1.05rem; font-weight:700; color:var(--text); width:150px;" onchange="fl.name=this.value; saveData();">
-              <button class="btn btn-danger btn-sm" onclick="appData.floors.splice(${fIdx},1); saveData(); renderFloors();">Delete Floor</button>
+              <input type="text" value="${fl.name}" style="background:transparent; border:none; font-size:1.05rem; font-weight:700; color:var(--text); width:150px;" onchange="getActiveSite().floors[${fIdx}].name=this.value; saveCurrentData();">
+              <button class="btn btn-danger btn-sm" onclick="getActiveSite().floors.splice(${fIdx},1); saveCurrentData(); renderFloors();">Delete Floor</button>
             </div>
 
             <div class="subcat-label">
@@ -731,18 +1057,32 @@
             </div>
             ${borderCards || '<div style="color:var(--text-muted); font-size:0.75rem;">No borders</div>'}
 
+            <div class="subcat-label deduction-label">
+              <span>✂️ Corner Deductions / Cuts (${fl.deductions.length})</span>
+              <button class="btn btn-danger btn-sm" onclick="addRow(${fIdx}, 'deductions')">+ Minus Cut</button>
+            </div>
+            ${deductionCards || '<div style="color:var(--text-muted); font-size:0.75rem;">No corner deductions</div>'}
+
             <div class="floor-footer">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:0.8rem; color:var(--text-muted);">Floor Sqft:</span>
-                <span class="mono" style="font-size:1.05rem;">${fSqft.toFixed(1)} sqft</span>
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);">
+                <span>Gross Area:</span>
+                <span class="mono" id="floor-gross-val-${fIdx}">${fGrossSqft.toFixed(1)} sqft</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:#f87171;">
+                <span>Total Deductions:</span>
+                <span class="mono" id="floor-deduct-val-${fIdx}">-${fDeductSqft.toFixed(1)} sqft</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed var(--border); padding-top:4px;">
+                <span style="font-size:0.85rem; font-weight:700;">Net Floor Area:</span>
+                <span class="mono" style="font-size:1.05rem;" id="floor-sqft-val-${fIdx}">${netSqft.toFixed(1)} sqft</span>
               </div>
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:0.8rem; color:var(--text-muted);">Rate (₹/sqft):</span>
-                <input type="number" value="${fl.rate}" style="width:100px; height:34px;" oninput="fl.rate=parseFloat(this.value)||0; recalculate();">
+                <input type="number" value="${fl.rate}" style="width:100px; height:34px;" oninput="getActiveSite().floors[${fIdx}].rate=parseFloat(this.value)||0; recalculate();">
               </div>
               <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed var(--border); padding-top:6px;">
-                <span style="font-size:0.85rem; font-weight:700;">Floor Total:</span>
-                <span class="mono" style="font-size:1.15rem; color:var(--success);">₹${fCost.toLocaleString('en-IN')}</span>
+                <span style="font-size:0.85rem; font-weight:700;">Floor Total Cost:</span>
+                <span class="mono" style="font-size:1.15rem; color:var(--success);" id="floor-cost-val-${fIdx}">₹${fCost.toLocaleString('en-IN')}</span>
               </div>
             </div>
           </div>
@@ -752,79 +1092,170 @@
             recalculate();
         }
 
-        /* Pillars & Steps */
         function renderPillars() {
+            const site = getActiveSite();
             const wrap = document.getElementById('pillars-list');
-            wrap.innerHTML = appData.pillars.map((p, idx) => `
+            wrap.innerHTML = site.pillars.map((p, idx) => `
         <div style="display:flex; gap:6px; margin-bottom:6px;">
-          <input type="number" value="${p}" style="flex:1;" oninput="appData.pillars[${idx}]=parseFloat(this.value)||0; recalculate();">
-          <button class="btn btn-danger btn-sm" onclick="appData.pillars.splice(${idx},1); recalculate(); renderPillars();">×</button>
+          <input type="number" value="${p}" style="flex:1;" oninput="getActiveSite().pillars[${idx}]=parseFloat(this.value)||0; recalculate();">
+          <button class="btn btn-danger btn-sm" onclick="getActiveSite().pillars.splice(${idx},1); recalculate(); renderPillars();">×</button>
         </div>
       `).join('');
         }
 
         function addPillar() {
-            appData.pillars.push(0);
-            recalculate();
+            getActiveSite().pillars.push(0);
             renderPillars();
+            recalculate();
         }
 
         function renderSteps() {
+            const site = getActiveSite();
             const wrap = document.getElementById('steps-list');
-            wrap.innerHTML = appData.steps.map((s, idx) => `
+            wrap.innerHTML = site.steps.map((s, idx) => `
         <div style="display:flex; gap:6px; margin-bottom:6px;">
-          <input type="number" value="${s}" style="flex:1;" oninput="appData.steps[${idx}]=parseFloat(this.value)||0; recalculate();">
-          <button class="btn btn-danger btn-sm" onclick="appData.steps.splice(${idx},1); recalculate(); renderSteps();">×</button>
+          <input type="number" value="${s}" style="flex:1;" oninput="getActiveSite().steps[${idx}]=parseFloat(this.value)||0; recalculate();">
+          <button class="btn btn-danger btn-sm" onclick="getActiveSite().steps.splice(${idx},1); recalculate(); renderSteps();">×</button>
         </div>
       `).join('');
         }
 
         function addStep() {
-            appData.steps.push(0);
-            recalculate();
+            getActiveSite().steps.push(0);
             renderSteps();
+            recalculate();
+        }
+
+        function calculateSiteGrandTotal(site) {
+            let floorsTotal = 0;
+            (site.floors || []).forEach(fl => {
+                let fGross = 0;
+                let fDeduct = 0;
+
+                (fl.slabs || []).forEach(r => {
+                    const mObj = site.slabMultipliers.find(item => item.id === r.thick);
+                    fGross += ((r.l * M_TO_FT) * (r.b * M_TO_FT)) * (mObj ? mObj.multiplier : 1.0);
+                });
+                (fl.beams || []).forEach(r => fGross += ((r.l * M_TO_FT) * (r.b * M_TO_FT)) * 2);
+                (fl.lintels || []).forEach(r => fGross += ((r.l * M_TO_FT) * (r.b * M_TO_FT)) * 1.5);
+                (fl.sunshades || []).forEach(r => fGross += ((r.l * M_TO_FT) * (r.b * M_TO_FT)) * 1);
+                (fl.layers || []).forEach(r => fGross += ((r.l * M_TO_FT) * (r.b * M_TO_FT)) * 1);
+                (fl.borders || []).forEach(r => fGross += (r.l * M_TO_FT));
+                (fl.deductions || []).forEach(r => fDeduct += ((r.l * M_TO_FT) * (r.b * M_TO_FT)));
+
+                const net = Math.max(0, fGross - fDeduct);
+                floorsTotal += Math.round(net * (fl.rate || 0));
+            });
+
+            const pTot = (site.pillars || []).reduce((a, b) => a + (parseFloat(b) || 0), 0);
+            const sTot = (site.steps || []).reduce((a, b) => a + (parseFloat(b) || 0), 0);
+            return floorsTotal + pTot + sTot;
         }
 
         function recalculate() {
+            const site = getActiveSite();
             let floorsTotal = 0;
-            appData.floors.forEach(fl => {
-                let fSqft = 0;
-                fl.slabs.forEach(r => {
-                    const m = appData.slabMultipliers.find(item => item.id === r.thick);
-                    fSqft += ((r.l * M_TO_FT) * (r.b * M_TO_FT)) * (m ? m.multiplier : 1.0);
-                });
-                fl.beams.forEach(r => fSqft += ((r.l * M_TO_FT) * (r.b * M_TO_FT)) * 2);
-                fl.lintels.forEach(r => fSqft += ((r.l * M_TO_FT) * (r.b * M_TO_FT)) * 1.5);
-                fl.sunshades.forEach(r => fSqft += ((r.l * M_TO_FT) * (r.b * M_TO_FT)) * 1);
-                fl.layers.forEach(r => fSqft += ((r.l * M_TO_FT) * (r.b * M_TO_FT)) * 1);
-                fl.borders.forEach(r => fSqft += (r.l * M_TO_FT));
 
-                floorsTotal += Math.round(fSqft * (fl.rate || 0));
+            site.floors.forEach((fl, fIdx) => {
+                let fGrossSqft = 0;
+                let fDeductSqft = 0;
+
+                fl.slabs.forEach((r, rIdx) => {
+                    const m = site.slabMultipliers.find(item => item.id === r.thick);
+                    const mult = m ? m.multiplier : 1.0;
+                    const area = (r.l * M_TO_FT) * (r.b * M_TO_FT);
+                    const eff = area * mult;
+                    fGrossSqft += eff;
+
+                    const aEl = document.getElementById(`slab-area-${fIdx}-${rIdx}`);
+                    const eEl = document.getElementById(`slab-eff-${fIdx}-${rIdx}`);
+                    if (aEl) aEl.textContent = area.toFixed(1);
+                    if (eEl) eEl.textContent = eff.toFixed(1);
+                });
+
+                const stdCats = [
+                    { cat: 'beams', mult: 2 },
+                    { cat: 'lintels', mult: 1.5 },
+                    { cat: 'sunshades', mult: 1 },
+                    { cat: 'layers', mult: 1 }
+                ];
+
+                stdCats.forEach(({ cat, mult }) => {
+                    fl[cat].forEach((r, rIdx) => {
+                        const area = (r.l * M_TO_FT) * (r.b * M_TO_FT);
+                        const eff = area * mult;
+                        fGrossSqft += eff;
+
+                        const aEl = document.getElementById(`${cat}-area-${fIdx}-${rIdx}`);
+                        const eEl = document.getElementById(`${cat}-eff-${fIdx}-${rIdx}`);
+                        if (aEl) aEl.textContent = area.toFixed(1);
+                        if (eEl) eEl.textContent = eff.toFixed(1);
+                    });
+                });
+
+                fl.borders.forEach((r, rIdx) => {
+                    const direct = r.l * M_TO_FT;
+                    fGrossSqft += direct;
+                    const eEl = document.getElementById(`borders-eff-${fIdx}-${rIdx}`);
+                    if (eEl) eEl.textContent = direct.toFixed(1);
+                });
+
+                (fl.deductions || []).forEach((r, rIdx) => {
+                    const cutArea = (r.l * M_TO_FT) * (r.b * M_TO_FT);
+                    fDeductSqft += cutArea;
+                    const eEl = document.getElementById(`deduct-eff-${fIdx}-${rIdx}`);
+                    if (eEl) eEl.textContent = '-' + cutArea.toFixed(1);
+                });
+
+                const netSqft = Math.max(0, fGrossSqft - fDeductSqft);
+                const fCost = Math.round(netSqft * (fl.rate || 0));
+                floorsTotal += fCost;
+
+                const gEl = document.getElementById(`floor-gross-val-${fIdx}`);
+                const dEl = document.getElementById(`floor-deduct-val-${fIdx}`);
+                const sqftEl = document.getElementById(`floor-sqft-val-${fIdx}`);
+                const costEl = document.getElementById(`floor-cost-val-${fIdx}`);
+
+                if (gEl) gEl.textContent = fGrossSqft.toFixed(1) + ' sqft';
+                if (dEl) dEl.textContent = '-' + fDeductSqft.toFixed(1) + ' sqft';
+                if (sqftEl) sqftEl.textContent = netSqft.toFixed(1) + ' sqft';
+                if (costEl) costEl.textContent = '₹' + fCost.toLocaleString('en-IN');
             });
 
-            const pillarsTotal = appData.pillars.reduce((a, b) => a + (parseFloat(b) || 0), 0);
-            const stepsTotal = appData.steps.reduce((a, b) => a + (parseFloat(b) || 0), 0);
+            const pillarsTotal = site.pillars.reduce((a, b) => a + (parseFloat(b) || 0), 0);
+            const stepsTotal = site.steps.reduce((a, b) => a + (parseFloat(b) || 0), 0);
             const grandTotal = floorsTotal + pillarsTotal + stepsTotal;
 
-            document.getElementById('lbl-pillars-sub').textContent = '₹' + pillarsTotal.toLocaleString('en-IN');
-            document.getElementById('lbl-steps-sub').textContent = '₹' + stepsTotal.toLocaleString('en-IN');
-            document.getElementById('foot-grand-val').textContent = '₹' + grandTotal.toLocaleString('en-IN');
+            const pSub = document.getElementById('lbl-pillars-sub');
+            const sSub = document.getElementById('lbl-steps-sub');
+            const gVal = document.getElementById('foot-grand-val');
 
-            saveData();
+            if (pSub) pSub.textContent = '₹' + pillarsTotal.toLocaleString('en-IN');
+            if (sSub) sSub.textContent = '₹' + stepsTotal.toLocaleString('en-IN');
+            if (gVal) gVal.textContent = '₹' + grandTotal.toLocaleString('en-IN');
+
+            saveCurrentData();
         }
 
         function updatePrintPreview() {
-            const m = appData.meta;
-            document.getElementById('prn-client').textContent = m.client || '—';
-            document.getElementById('prn-site').textContent = m.site || '—';
-            document.getElementById('prn-no').textContent = m.invNo || 'EST-101';
-            document.getElementById('prn-date').textContent = m.date || '—';
+            const site = getActiveSite();
+            const m = site.meta;
+            const pClient = document.getElementById('prn-client');
+            const pSite = document.getElementById('prn-site');
+            const pNo = document.getElementById('prn-no');
+            const pDate = document.getElementById('prn-date');
+
+            if (pClient) pClient.textContent = m.client || '—';
+            if (pSite) pSite.textContent = m.site || '—';
+            if (pNo) pNo.textContent = m.invNo || 'EST-101';
+            if (pDate) pDate.textContent = m.date || '—';
 
             let floorsHtml = '';
             let floorsTot = 0;
 
-            appData.floors.forEach(fl => {
-                let fSqft = 0;
+            site.floors.forEach(fl => {
+                let fGrossSqft = 0;
+                let fDeductSqft = 0;
                 let rows = '';
 
                 const append = (name, l, b, mult, note) => {
@@ -837,11 +1268,11 @@
                         eff = area * mult;
                         rows += `<tr><td>${name}</td><td>${l}m × ${b}m</td><td>× ${mult}</td><td>${eff.toFixed(1)} sqft</td></tr>`;
                     }
-                    fSqft += eff;
+                    fGrossSqft += eff;
                 };
 
                 fl.slabs.forEach((r, idx) => {
-                    const mObj = appData.slabMultipliers.find(item => item.id === r.thick);
+                    const mObj = site.slabMultipliers.find(item => item.id === r.thick);
                     append(`Slab #${idx + 1}`, r.l, r.b, mObj ? mObj.multiplier : 1.0);
                 });
                 fl.beams.forEach((r, idx) => append(`Beam #${idx + 1}`, r.l, r.b, 2));
@@ -850,7 +1281,14 @@
                 fl.layers.forEach((r, idx) => append(`Layer #${idx + 1}`, r.l, r.b, 1));
                 fl.borders.forEach((r, idx) => append(`Border #${idx + 1}`, r.l, 0, 1, 'Border'));
 
-                const cost = Math.round(fSqft * (fl.rate || 0));
+                (fl.deductions || []).forEach((r, idx) => {
+                    const cutArea = (r.l * M_TO_FT) * (r.b * M_TO_FT);
+                    fDeductSqft += cutArea;
+                    rows += `<tr style="color:#b91c1c;"><td>Cutout: ${r.note || `Cut #${idx + 1}`}</td><td>${r.l}m × ${r.b}m</td><td>Minus</td><td>-${cutArea.toFixed(1)} sqft</td></tr>`;
+                });
+
+                const netSqft = Math.max(0, fGrossSqft - fDeductSqft);
+                const cost = Math.round(netSqft * (fl.rate || 0));
                 floorsTot += cost;
 
                 floorsHtml += `
@@ -859,48 +1297,172 @@
             <thead><tr><th>Item</th><th>Dim</th><th>Mult</th><th>Sqft</th></tr></thead>
             <tbody>${rows || '<tr><td colspan="4">No items</td></tr>'}</tbody>
             <tfoot>
+              <tr>
+                <td colspan="3" style="text-align:right;">Gross / Deductions:</td>
+                <td>${fGrossSqft.toFixed(1)} / -${fDeductSqft.toFixed(1)} sqft</td>
+              </tr>
               <tr style="font-weight:700; background:#f8fafc;">
-                <td colspan="3" style="text-align:right;">Subtotal:</td>
-                <td>${fSqft.toFixed(1)} sqft (₹${cost.toLocaleString('en-IN')})</td>
+                <td colspan="3" style="text-align:right;">Net Floor Total:</td>
+                <td>${netSqft.toFixed(1)} sqft (₹${cost.toLocaleString('en-IN')})</td>
               </tr>
             </tfoot>
           </table>
         `;
             });
 
-            document.getElementById('prn-floors-table').innerHTML = floorsHtml;
+            const pFloorsTable = document.getElementById('prn-floors-table');
+            const pUnitsTable = document.getElementById('prn-units-table');
+            if (pFloorsTable) pFloorsTable.innerHTML = floorsHtml;
 
-            const pTot = appData.pillars.reduce((a, b) => a + (parseFloat(b) || 0), 0);
-            const sTot = appData.steps.reduce((a, b) => a + (parseFloat(b) || 0), 0);
+            const pTot = site.pillars.reduce((a, b) => a + (parseFloat(b) || 0), 0);
+            const sTot = site.steps.reduce((a, b) => a + (parseFloat(b) || 0), 0);
             const unitsTot = pTot + sTot;
 
-            document.getElementById('prn-units-table').innerHTML = `
-        <div style="font-weight:700; font-size:0.9rem; margin-top:10px;">Pillars & Steps Flat Units</div>
-        <table class="inv-table">
-          <thead><tr><th>Item</th><th>Qty</th><th>Total</th></tr></thead>
-          <tbody>
-            <tr><td>Pillars</td><td>${appData.pillars.length} pcs</td><td>₹${pTot.toLocaleString('en-IN')}</td></tr>
-            <tr><td>Steps</td><td>${appData.steps.length} pcs</td><td>₹${sTot.toLocaleString('en-IN')}</td></tr>
-          </tbody>
-        </table>
-      `;
+            if (pUnitsTable) {
+                pUnitsTable.innerHTML = `
+          <div style="font-weight:700; font-size:0.9rem; margin-top:10px;">Pillars & Steps Flat Units</div>
+          <table class="inv-table">
+            <thead><tr><th>Item</th><th>Qty</th><th>Total</th></tr></thead>
+            <tbody>
+              <tr><td>Pillars</td><td>${site.pillars.length} pcs</td><td>₹${pTot.toLocaleString('en-IN')}</td></tr>
+              <tr><td>Steps</td><td>${site.steps.length} pcs</td><td>₹${sTot.toLocaleString('en-IN')}</td></tr>
+            </tbody>
+          </table>
+        `;
+            }
 
-            document.getElementById('prn-floors-total').textContent = '₹' + floorsTot.toLocaleString('en-IN');
-            document.getElementById('prn-units-total').textContent = '₹' + unitsTot.toLocaleString('en-IN');
-            document.getElementById('prn-grand-total').textContent = '₹' + (floorsTot + unitsTot).toLocaleString('en-IN');
+            const prnFTot = document.getElementById('prn-floors-total');
+            const prnUTot = document.getElementById('prn-units-total');
+            const prnGTot = document.getElementById('prn-grand-total');
+
+            if (prnFTot) prnFTot.textContent = '₹' + floorsTot.toLocaleString('en-IN');
+            if (prnUTot) prnUTot.textContent = '₹' + unitsTot.toLocaleString('en-IN');
+            if (prnGTot) prnGTot.textContent = '₹' + (floorsTot + unitsTot).toLocaleString('en-IN');
         }
 
         function renderAll() {
-            document.getElementById('meta-client').value = appData.meta.client || '';
-            document.getElementById('meta-site').value = appData.meta.site || '';
-            document.getElementById('meta-no').value = appData.meta.invNo || 'EST-101';
-            document.getElementById('meta-date').value = appData.meta.date || '';
+            const site = getActiveSite();
+            const cEl = document.getElementById('meta-client');
+            const sEl = document.getElementById('meta-site');
+            const nEl = document.getElementById('meta-no');
+            const dEl = document.getElementById('meta-date');
+
+            if (cEl) cEl.value = site.meta.client || '';
+            if (sEl) sEl.value = site.meta.site || '';
+            if (nEl) nEl.value = site.meta.invNo || 'EST-101';
+            if (dEl) dEl.value = site.meta.date || '';
+
+            document.getElementById('headerActiveDraftName').textContent = `Site: ${site.meta.client || 'Draft'}`;
 
             renderMultipliers();
             renderFloors();
             renderPillars();
             renderSteps();
             recalculate();
+        }
+
+        /* ================= STANDALONE FIREBASE CONSOLE SYNC ================= */
+        function generateRandomProject() {
+            const words = ["apex", "solid", "metro", "builder", "stone", "concrete", "struct", "core"];
+            const r = Math.floor(Math.random() * 900) + 100;
+            const code = `${words[Math.floor(Math.random() * words.length)]}-works-${r}`;
+            document.getElementById('cloudProjectName').value = code;
+        }
+
+        function connectFirebase() {
+            const pName = document.getElementById('cloudProjectName').value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "");
+            const dbUrl = document.getElementById('cloudDbUrl').value.trim();
+
+            if (!pName) {
+                alert("Please enter a Project or Company Name for Firebase storage.");
+                return;
+            }
+
+            firebaseConfig.projectName = pName;
+            firebaseConfig.dbUrl = dbUrl;
+            localStorage.setItem('concrete_standalone_fb_config', JSON.stringify(firebaseConfig));
+
+            try {
+                const urlToUse = dbUrl || "https://crew-attendance-e2e4b-default-rtdb.firebaseio.com/";
+                firebase.initializeApp({ databaseURL: urlToUse }, "concrete-app-" + Date.now());
+                firebaseDb = firebase.app(firebase.apps[firebase.apps.length - 1].name).database();
+
+                document.getElementById('cloudStatusLabel').innerText = "Connecting to Firebase...";
+                document.getElementById('cloudActivePath').innerText = `concrete_sites/${pName}/siteDrafts`;
+
+                const ref = firebaseDb.ref(`concrete_sites/${pName}/siteDrafts`);
+
+                ref.once('value').then(snap => {
+                    const cloudDrafts = snap.val();
+                    if (cloudDrafts && Array.isArray(cloudDrafts) && cloudDrafts.length > 0) {
+                        const restore = confirm(`Found ${cloudDrafts.length} site draft(s) on Firebase Console under "${pName}".\n\nClick [OK] to load drafts from Firebase.\nClick [Cancel] to overwrite Firebase with local device drafts.`);
+                        if (restore) {
+                            siteDrafts = cloudDrafts;
+                            activeSiteId = siteDrafts[0].id;
+                            localStorage.setItem('concrete_all_site_drafts', JSON.stringify(siteDrafts));
+                            localStorage.setItem('concrete_active_site_id', activeSiteId);
+                            renderAll();
+                            showToast("Loaded drafts from Firebase!");
+                        } else {
+                            pushToFirebase();
+                        }
+                    } else {
+                        pushToFirebase();
+                    }
+
+                    if (cloudListener) ref.off('value', cloudListener);
+                    cloudListener = ref.on('value', snapshot => {
+                        const data = snapshot.val();
+                        if (data && JSON.stringify(data) !== JSON.stringify(siteDrafts)) {
+                            siteDrafts = data;
+                            if (!siteDrafts.some(s => s.id === activeSiteId)) {
+                                activeSiteId = siteDrafts[0].id;
+                            }
+                            localStorage.setItem('concrete_all_site_drafts', JSON.stringify(siteDrafts));
+                            localStorage.setItem('concrete_active_site_id', activeSiteId);
+                            renderAll();
+                            showToast("Sync: Drafts updated from Firebase");
+                        }
+                    });
+
+                    document.getElementById('cloudStatusLabel').innerText = "Online (Connected)";
+                    document.getElementById('cloudStatusLabel').style.color = "var(--success)";
+                    document.getElementById('headerSyncDot').className = "sync-dot online";
+                    document.getElementById('headerSyncText').innerText = pName;
+                }).catch(err => {
+                    console.error(err);
+                    document.getElementById('cloudStatusLabel').innerText = "Connection Failed";
+                    document.getElementById('cloudStatusLabel').style.color = "var(--danger)";
+                });
+
+            } catch (err) {
+                console.error(err);
+                alert("Firebase initialization failed. Verify your database URL.");
+            }
+        }
+
+        function pushToFirebase() {
+            if (!firebaseDb || !firebaseConfig.projectName) return;
+            firebaseDb.ref(`concrete_sites/${firebaseConfig.projectName}/siteDrafts`).set(siteDrafts)
+                .catch(console.error);
+        }
+
+        function disconnectFirebase() {
+            if (confirm("Disconnect from Firebase sync? Local drafts will remain saved on this device.")) {
+                if (firebaseDb && firebaseConfig.projectName && cloudListener) {
+                    firebaseDb.ref(`concrete_sites/${firebaseConfig.projectName}/siteDrafts`).off('value', cloudListener);
+                }
+                firebaseConfig.projectName = '';
+                localStorage.setItem('concrete_standalone_fb_config', JSON.stringify(firebaseConfig));
+
+                document.getElementById('cloudProjectName').value = '';
+                document.getElementById('cloudStatusLabel').innerText = "Not Connected";
+                document.getElementById('cloudStatusLabel').style.color = "var(--text-muted)";
+                document.getElementById('cloudActivePath').innerText = "None";
+                document.getElementById('headerSyncDot').className = "sync-dot";
+                document.getElementById('headerSyncText').innerText = "Local";
+                showToast("Disconnected from Cloud");
+            }
         }
 
         window.addEventListener('DOMContentLoaded', init);
