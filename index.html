@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Concrete Pro — Estimator & Firebase Console</title>
+    <title>Concrete Pro — Estimator & Firebase</title>
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -55,7 +55,7 @@
         .top-bar {
             position: sticky;
             top: 0;
-            background: rgba(15, 23, 42, 0.92);
+            background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border);
@@ -206,6 +206,7 @@
             justify-content: center;
             gap: 6px;
             cursor: pointer;
+            user-select: none;
         }
 
         .btn-primary {
@@ -427,7 +428,7 @@
 
 <body>
 
-    <!-- Top Sticky Header -->
+    <!-- Top Header -->
     <header class="top-bar">
         <div>
             <div class="brand-title">Concrete Pro</div>
@@ -438,25 +439,25 @@
                 <span class="sync-dot" id="headerSyncDot"></span>
                 <span id="headerSyncText">Local</span>
             </div>
-            <button class="btn btn-primary btn-sm" onclick="printDoc()">🖨️ PDF</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="printDoc()">🖨️ PDF</button>
         </div>
     </header>
 
     <main class="app-wrap">
-        <!-- View Switcher Tabs -->
+        <!-- View Switcher -->
         <div class="tab-pills">
-            <button class="tab-btn active" id="tab-btn-edit" onclick="setTab('edit')">Calculator</button>
-            <button class="tab-btn" id="tab-btn-drafts" onclick="setTab('drafts')">Saved Sites</button>
-            <button class="tab-btn" id="tab-btn-inv" onclick="setTab('inv')">Invoice</button>
-            <button class="tab-btn" id="tab-btn-cloud" onclick="setTab('cloud')">Firebase</button>
+            <button type="button" class="tab-btn active" id="tab-btn-edit" onclick="setTab('edit')">Calculator</button>
+            <button type="button" class="tab-btn" id="tab-btn-drafts" onclick="setTab('drafts')">Saved Sites</button>
+            <button type="button" class="tab-btn" id="tab-btn-inv" onclick="setTab('inv')">Invoice</button>
+            <button type="button" class="tab-btn" id="tab-btn-cloud" onclick="setTab('cloud')">Firebase</button>
         </div>
 
-        <!-- TAB 1: Mobile Calculator -->
+        <!-- TAB 1: Calculator -->
         <div id="edit-section">
             <div class="card">
                 <div class="card-title">
                     <span>Active Site Info</span>
-                    <button class="btn btn-secondary btn-sm" onclick="saveAsNewDraft()">Save as Draft</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="saveAsNewDraft()">Save Copy</button>
                 </div>
                 <div class="field-group" style="margin-bottom: 8px;">
                     <label>Site / Client Name</label>
@@ -480,26 +481,26 @@
                 </div>
             </div>
 
-            <!-- Slab Multiplier Config -->
+            <!-- Slab Multipliers -->
             <div class="card">
                 <div class="card-title">
                     <span>Slab Multipliers</span>
-                    <button class="btn btn-secondary btn-sm" onclick="addThicknessRule()">+ Add</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addThicknessRule()">+ Add</button>
                 </div>
                 <div id="thickness-list"></div>
             </div>
 
             <!-- Floors Container -->
             <div id="floors-container"></div>
-            <button class="btn btn-primary btn-block" onclick="addFloor()">+ Add New Floor</button>
+            <button type="button" class="btn btn-primary btn-block" onclick="addFloor()">+ Add New Floor</button>
 
-            <!-- Flat Rate Items: Pillars & Steps -->
+            <!-- Pillars & Steps -->
             <div class="card" style="margin-top: 16px;">
                 <div class="card-title">Pillars & Steps (Flat Unit Rates)</div>
 
                 <div class="subcat-label">
                     <span>Pillars</span>
-                    <button class="btn btn-secondary btn-sm" onclick="addPillar()">+ Add</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addPillar()">+ Add</button>
                 </div>
                 <div id="pillars-list"></div>
                 <div style="text-align: right; font-size: 0.8rem; margin: 4px 0 10px 0;">
@@ -508,7 +509,7 @@
 
                 <div class="subcat-label">
                     <span>Steps</span>
-                    <button class="btn btn-secondary btn-sm" onclick="addStep()">+ Add</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addStep()">+ Add</button>
                 </div>
                 <div id="steps-list"></div>
                 <div style="text-align: right; font-size: 0.8rem; margin-top: 4px;">
@@ -517,12 +518,13 @@
             </div>
         </div>
 
-        <!-- TAB 2: Site Drafts Manager -->
+        <!-- TAB 2: Saved Sites -->
         <div id="drafts-section" style="display: none;">
             <div class="card">
                 <div class="card-title">
                     <span>Saved Site Measurements</span>
-                    <button class="btn btn-primary btn-sm" onclick="createNewBlankSite()">+ New Site</button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="createNewBlankSite()">+ New
+                        Site</button>
                 </div>
                 <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">
                     Manage multiple sites independently. Tap any site below to edit its measurements.
@@ -532,7 +534,7 @@
             </div>
         </div>
 
-        <!-- TAB 3: Printable Invoice Preview -->
+        <!-- TAB 3: Invoice Preview -->
         <div id="print-section">
             <div
                 style="display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
@@ -570,7 +572,7 @@
             </div>
         </div>
 
-        <!-- TAB 4: Firebase Console Direct Sync -->
+        <!-- TAB 4: Firebase Sync -->
         <div id="cloud-section" style="display: none;">
             <div class="card">
                 <div class="card-title">Firebase Console Cloud Sync</div>
@@ -580,20 +582,19 @@
 
                 <div class="field-group" style="margin-bottom: 10px;">
                     <label>Company / Project Name (Database Key)</label>
-                    <div style="display: flex; gap: 6px;">
-                        <input type="text" id="cloudProjectName" placeholder="e.g. apex-concrete" style="flex:1;">
-                        <button class="btn btn-secondary btn-sm" onclick="generateRandomProject()">Random</button>
-                    </div>
+                    <input type="text" id="cloudProjectName" placeholder="e.g. construction-calculation">
                 </div>
 
                 <div class="field-group" style="margin-bottom: 14px;">
                     <label>Firebase Database URL</label>
-                    <input type="text" id="cloudDbUrl" placeholder="https://your-db-default-rtdb.firebaseio.com/">
+                    <input type="text" id="cloudDbUrl"
+                        placeholder="https://construction-calculation-default-rtdb.firebaseio.com">
                 </div>
 
                 <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-primary" style="flex: 1;" onclick="connectFirebase()">Connect & Sync</button>
-                    <button class="btn btn-danger" onclick="disconnectFirebase()">Disconnect</button>
+                    <button type="button" class="btn btn-primary" style="flex: 1;" onclick="connectFirebase()">Connect &
+                        Sync</button>
+                    <button type="button" class="btn btn-danger" onclick="disconnectFirebase()">Disconnect</button>
                 </div>
 
                 <div
@@ -613,28 +614,26 @@
             <div class="foot-total-lbl">Grand Total</div>
             <div class="foot-total-val" id="foot-grand-val">₹0</div>
         </div>
-        <button class="btn btn-primary" onclick="printDoc()">Share / Print</button>
+        <button type="button" class="btn btn-primary" onclick="printDoc()">Share / Print</button>
     </div>
 
-    <div class="toast" id="toastBox">Saved Draft</div>
+    <div class="toast" id="toastBox">Saved</div>
 
     <script>
         const M_TO_FT = 3.28084;
 
         let siteDrafts = [];
         let activeSiteId = '';
-
-        let firebaseConfig = { projectName: '', dbUrl: '' };
         let firebaseDb = null;
         let cloudListener = null;
 
-        function getDefaultSiteTemplate(name = 'New Site Estimate') {
+        function getDefaultSite(name = 'New Site Estimate') {
             return {
                 id: 'site_' + Date.now(),
                 updatedAt: Date.now(),
                 meta: {
                     client: name,
-                    site: 'Main Road',
+                    site: 'Plot #42, Main Road',
                     invNo: 'EST-' + Math.floor(Math.random() * 899 + 100),
                     date: new Date().toISOString().split('T')[0]
                 },
@@ -662,45 +661,83 @@
         }
 
         function init() {
-            const savedConfig = localStorage.getItem('concrete_standalone_fb_config');
-            if (savedConfig) {
-                try { firebaseConfig = JSON.parse(savedConfig); } catch (e) { }
-            }
-            document.getElementById('cloudProjectName').value = firebaseConfig.projectName || '';
-            document.getElementById('cloudDbUrl').value = firebaseConfig.dbUrl || '';
+            try {
+                const savedConfig = localStorage.getItem('concrete_app_config');
+                if (savedConfig) {
+                    const cfg = JSON.parse(savedConfig);
+                    if (cfg.projectName) document.getElementById('cloudProjectName').value = cfg.projectName;
+                    if (cfg.dbUrl) document.getElementById('cloudDbUrl').value = cfg.dbUrl;
+                }
+            } catch (e) { }
 
-            const savedDrafts = localStorage.getItem('concrete_all_site_drafts');
-            if (savedDrafts) {
-                try { siteDrafts = JSON.parse(savedDrafts); } catch (e) { siteDrafts = []; }
+            try {
+                const saved = localStorage.getItem('concrete_clean_drafts_v5');
+                if (saved) {
+                    siteDrafts = JSON.parse(saved);
+                }
+            } catch (e) {
+                siteDrafts = [];
             }
 
-            if (!siteDrafts || siteDrafts.length === 0) {
-                const initial = getDefaultSiteTemplate('Plot #42 Civil Lines');
+            if (!Array.isArray(siteDrafts) || siteDrafts.length === 0) {
+                const initial = getDefaultSite('Plot #42 Civil Lines');
                 siteDrafts = [initial];
                 activeSiteId = initial.id;
             } else {
-                activeSiteId = localStorage.getItem('concrete_active_site_id') || siteDrafts[0].id;
+                activeSiteId = localStorage.getItem('concrete_clean_active_id') || siteDrafts[0].id;
                 if (!siteDrafts.some(s => s.id === activeSiteId)) {
                     activeSiteId = siteDrafts[0].id;
                 }
             }
 
+            siteDrafts.forEach(ensureSiteStructure);
             renderAll();
 
-            if (firebaseConfig.projectName) {
-                setTimeout(connectFirebase, 400);
+            const currentUrl = document.getElementById('cloudDbUrl').value.trim();
+            if (currentUrl && currentUrl.startsWith('https://')) {
+                setTimeout(connectFirebase, 500);
             }
         }
 
+        function ensureSiteStructure(s) {
+            if (!s.floors) s.floors = [];
+            if (!s.pillars) s.pillars = [];
+            if (!s.steps) s.steps = [];
+            if (!s.slabMultipliers || s.slabMultipliers.length === 0) {
+                s.slabMultipliers = [
+                    { id: '4in', label: '4"', multiplier: 1.0 },
+                    { id: '5in', label: '5"', multiplier: 1.25 },
+                    { id: '6in', label: '6"', multiplier: 1.5 }
+                ];
+            }
+            s.floors.forEach(f => {
+                if (!f.slabs) f.slabs = [];
+                if (!f.beams) f.beams = [];
+                if (!f.lintels) f.lintels = [];
+                if (!f.sunshades) f.sunshades = [];
+                if (!f.layers) f.layers = [];
+                if (!f.borders) f.borders = [];
+                if (!f.deductions) f.deductions = [];
+            });
+        }
+
         function getActiveSite() {
-            return siteDrafts.find(s => s.id === activeSiteId) || siteDrafts[0];
+            let site = siteDrafts.find(s => s.id === activeSiteId);
+            if (!site) {
+                site = siteDrafts[0];
+                activeSiteId = site.id;
+            }
+            ensureSiteStructure(site);
+            return site;
         }
 
         function showToast(msg) {
             const t = document.getElementById('toastBox');
-            t.textContent = msg;
-            t.classList.add('active');
-            setTimeout(() => t.classList.remove('active'), 2000);
+            if (t) {
+                t.textContent = msg;
+                t.classList.add('active');
+                setTimeout(() => t.classList.remove('active'), 2000);
+            }
         }
 
         function saveCurrentData() {
@@ -716,10 +753,12 @@
             if (dEl) site.meta.date = dEl.value;
             site.updatedAt = Date.now();
 
-            localStorage.setItem('concrete_all_site_drafts', JSON.stringify(siteDrafts));
-            localStorage.setItem('concrete_active_site_id', activeSiteId);
+            localStorage.setItem('concrete_clean_drafts_v5', JSON.stringify(siteDrafts));
+            localStorage.setItem('concrete_clean_active_id', activeSiteId);
 
-            document.getElementById('headerActiveDraftName').textContent = `Site: ${site.meta.client || 'Draft'}`;
+            const badge = document.getElementById('headerActiveDraftName');
+            if (badge) badge.textContent = `Site: ${site.meta.client || 'Draft'}`;
+
             updatePrintPreview();
             pushToFirebase();
         }
@@ -744,135 +783,7 @@
             window.print();
         }
 
-        /* Site Drafts Operations */
-        function renderDraftsList() {
-            const wrap = document.getElementById('drafts-list-container');
-            wrap.innerHTML = '';
-
-            if (siteDrafts.length === 0) {
-                wrap.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:20px;">No saved drafts.</div>';
-                return;
-            }
-
-            siteDrafts.forEach(draft => {
-                const isActive = draft.id === activeSiteId;
-                const total = calculateSiteGrandTotal(draft);
-
-                const div = document.createElement('div');
-                div.className = `draft-item ${isActive ? 'active-draft' : ''}`;
-                div.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-            <div>
-              <div style="font-weight:700; font-size:0.95rem; color:var(--text);">${draft.meta.client || 'Untitled Site'}</div>
-              <div style="font-size:0.75rem; color:var(--text-muted);">${draft.meta.site || 'No location set'} • ${draft.meta.date || ''}</div>
-            </div>
-            <div style="text-align:right;">
-              <span class="mono" style="font-size:1.05rem; font-weight:700; color:var(--success);">₹${total.toLocaleString('en-IN')}</span>
-              <div style="font-size:0.68rem; color:var(--text-muted);">${draft.floors.length} Floors</div>
-            </div>
-          </div>
-
-          <div style="display:flex; gap:6px; margin-top:4px;">
-            <button class="btn btn-primary btn-sm" style="flex:1;" onclick="loadDraft('${draft.id}')">
-              ${isActive ? 'Editing Current' : 'Load / Edit'}
-            </button>
-            <button class="btn btn-secondary btn-sm" onclick="duplicateDraft('${draft.id}')">Copy</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteDraft('${draft.id}')" ${siteDrafts.length <= 1 ? 'disabled' : ''}>Delete</button>
-          </div>
-        `;
-                wrap.appendChild(div);
-            });
-        }
-
-        function loadDraft(id) {
-            activeSiteId = id;
-            localStorage.setItem('concrete_active_site_id', activeSiteId);
-            renderAll();
-            setTab('edit');
-            showToast('Loaded site draft');
-        }
-
-        function createNewBlankSite() {
-            const name = prompt('Enter new site or client name:', 'New Site');
-            if (!name) return;
-
-            const newSite = getDefaultSiteTemplate(name);
-            siteDrafts.unshift(newSite);
-            activeSiteId = newSite.id;
-            saveCurrentData();
-            renderAll();
-            setTab('edit');
-            showToast('New site draft created');
-        }
-
-        function saveAsNewDraft() {
-            const current = getActiveSite();
-            const newName = prompt('Save copy as new site name:', (current.meta.client || 'Site') + ' (Copy)');
-            if (!newName) return;
-
-            const copy = JSON.parse(JSON.stringify(current));
-            copy.id = 'site_' + Date.now();
-            copy.meta.client = newName;
-            copy.updatedAt = Date.now();
-
-            siteDrafts.unshift(copy);
-            activeSiteId = copy.id;
-            saveCurrentData();
-            renderAll();
-            showToast('Saved copy as new draft');
-        }
-
-        function duplicateDraft(id) {
-            const source = siteDrafts.find(s => s.id === id);
-            if (!source) return;
-
-            const copy = JSON.parse(JSON.stringify(source));
-            copy.id = 'site_' + Date.now();
-            copy.meta.client = (source.meta.client || 'Site') + ' (Copy)';
-            copy.updatedAt = Date.now();
-
-            siteDrafts.unshift(copy);
-            saveCurrentData();
-            renderDraftsList();
-            showToast('Draft duplicated');
-        }
-
-        function deleteDraft(id) {
-            if (siteDrafts.length <= 1) {
-                alert('You must have at least one site draft.');
-                return;
-            }
-            if (!confirm('Are you sure you want to delete this site draft?')) return;
-
-            siteDrafts = siteDrafts.filter(s => s.id !== id);
-            if (activeSiteId === id) activeSiteId = siteDrafts[0].id;
-            saveCurrentData();
-            renderAll();
-            renderDraftsList();
-            showToast('Site draft deleted');
-        }
-
-        /* Slab Multipliers */
-        function renderMultipliers() {
-            const site = getActiveSite();
-            const wrap = document.getElementById('thickness-list');
-            wrap.innerHTML = site.slabMultipliers.map((m, idx) => `
-        <div style="display:flex; gap:6px; margin-bottom:6px;">
-          <input type="text" value="${m.label}" style="flex:1;" onchange="getActiveSite().slabMultipliers[${idx}].label=this.value; saveCurrentData(); renderFloors();">
-          <input type="number" step="0.05" value="${m.multiplier}" style="width:90px;" oninput="getActiveSite().slabMultipliers[${idx}].multiplier=parseFloat(this.value)||0; saveCurrentData(); renderFloors();">
-          <button class="btn btn-danger btn-sm" onclick="getActiveSite().slabMultipliers.splice(${idx},1); saveCurrentData(); renderMultipliers(); renderFloors();">×</button>
-        </div>
-      `).join('');
-        }
-
-        function addThicknessRule() {
-            getActiveSite().slabMultipliers.push({ id: 'th_' + Date.now(), label: 'Custom', multiplier: 1.0 });
-            saveCurrentData();
-            renderMultipliers();
-            renderFloors();
-        }
-
-        /* Floors */
+        /* Core Action Handlers */
         function addFloor() {
             const site = getActiveSite();
             site.floors.push({
@@ -884,8 +795,26 @@
             renderFloors();
         }
 
+        function deleteFloor(fIdx) {
+            const site = getActiveSite();
+            site.floors.splice(fIdx, 1);
+            saveCurrentData();
+            renderFloors();
+        }
+
+        function updateFloorName(fIdx, val) {
+            getActiveSite().floors[fIdx].name = val;
+            saveCurrentData();
+        }
+
+        function updateFloorRate(fIdx, val) {
+            getActiveSite().floors[fIdx].rate = parseFloat(val) || 0;
+            recalculate();
+        }
+
         function addRow(fIdx, cat) {
             const site = getActiveSite();
+            if (!site.floors[fIdx]) return;
             if (!site.floors[fIdx][cat]) site.floors[fIdx][cat] = [];
 
             if (cat === 'slabs') {
@@ -903,13 +832,18 @@
         }
 
         function removeRow(fIdx, cat, rIdx) {
-            getActiveSite().floors[fIdx][cat].splice(rIdx, 1);
-            saveCurrentData();
-            renderFloors();
+            const site = getActiveSite();
+            if (site.floors[fIdx] && site.floors[fIdx][cat]) {
+                site.floors[fIdx][cat].splice(rIdx, 1);
+                saveCurrentData();
+                renderFloors();
+            }
         }
 
         function updateRowField(fIdx, cat, rIdx, field, val) {
             const site = getActiveSite();
+            if (!site.floors[fIdx] || !site.floors[fIdx][cat] || !site.floors[fIdx][cat][rIdx]) return;
+
             if (field === 'thick' || field === 'note') {
                 site.floors[fIdx][cat][rIdx][field] = val;
             } else {
@@ -918,16 +852,91 @@
             recalculate();
         }
 
+        function addPillar() {
+            getActiveSite().pillars.push(0);
+            renderPillars();
+            recalculate();
+        }
+
+        function updatePillarVal(idx, val) {
+            getActiveSite().pillars[idx] = parseFloat(val) || 0;
+            recalculate();
+        }
+
+        function deletePillar(idx) {
+            getActiveSite().pillars.splice(idx, 1);
+            renderPillars();
+            recalculate();
+        }
+
+        function addStep() {
+            getActiveSite().steps.push(0);
+            renderSteps();
+            recalculate();
+        }
+
+        function updateStepVal(idx, val) {
+            getActiveSite().steps[idx] = parseFloat(val) || 0;
+            recalculate();
+        }
+
+        function deleteStep(idx) {
+            getActiveSite().steps.splice(idx, 1);
+            renderSteps();
+            recalculate();
+        }
+
+        function addThicknessRule() {
+            getActiveSite().slabMultipliers.push({ id: 'th_' + Date.now(), label: 'Custom', multiplier: 1.0 });
+            saveCurrentData();
+            renderMultipliers();
+            renderFloors();
+        }
+
+        function updateMultLabel(idx, val) {
+            getActiveSite().slabMultipliers[idx].label = val;
+            saveCurrentData();
+            renderFloors();
+        }
+
+        function updateMultVal(idx, val) {
+            getActiveSite().slabMultipliers[idx].multiplier = parseFloat(val) || 0;
+            saveCurrentData();
+            renderFloors();
+        }
+
+        function removeMult(idx) {
+            getActiveSite().slabMultipliers.splice(idx, 1);
+            saveCurrentData();
+            renderMultipliers();
+            renderFloors();
+        }
+
+        /* Rendering Methods */
+        function renderMultipliers() {
+            const site = getActiveSite();
+            const wrap = document.getElementById('thickness-list');
+            if (!wrap) return;
+
+            wrap.innerHTML = site.slabMultipliers.map((m, idx) => `
+        <div style="display:flex; gap:6px; margin-bottom:6px;">
+          <input type="text" value="${m.label}" style="flex:1;" onchange="updateMultLabel(${idx}, this.value)">
+          <input type="number" step="0.05" value="${m.multiplier}" style="width:90px;" oninput="updateMultVal(${idx}, this.value)">
+          <button type="button" class="btn btn-danger btn-sm" onclick="removeMult(${idx})">×</button>
+        </div>
+      `).join('');
+        }
+
         function renderFloors() {
             const site = getActiveSite();
             const container = document.getElementById('floors-container');
+            if (!container) return;
 
             container.innerHTML = site.floors.map((fl, fIdx) => {
-                if (!fl.deductions) fl.deductions = [];
-
                 let fGrossSqft = 0;
                 let fDeductSqft = 0;
 
+                // Slabs
                 const slabCards = fl.slabs.map((r, rIdx) => {
                     const multObj = site.slabMultipliers.find(m => m.id === r.thick);
                     const mult = multObj ? multObj.multiplier : 1.0;
@@ -945,7 +954,7 @@
                 <input type="number" step="0.01" placeholder="L (m)" value="${r.l || ''}" oninput="updateRowField(${fIdx}, 'slabs', ${rIdx}, 'l', this.value)">
                 <input type="number" step="0.01" placeholder="B (m)" value="${r.b || ''}" oninput="updateRowField(${fIdx}, 'slabs', ${rIdx}, 'b', this.value)">
                 <select onchange="updateRowField(${fIdx}, 'slabs', ${rIdx}, 'thick', this.value)">${opts}</select>
-                <button class="btn btn-danger btn-sm" onclick="removeRow(${fIdx},'slabs',${rIdx})">×</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(${fIdx},'slabs',${rIdx})">×</button>
               </div>
               <div class="row-card-sub">
                 <span>Area: <strong class="mono" id="slab-area-${fIdx}-${rIdx}">${area.toFixed(1)}</strong> sqft</span>
@@ -955,6 +964,7 @@
           `;
                 }).join('');
 
+                // Beams, Lintels, Sunshades, Layers
                 const makeStdCards = (cat, mult) => fl[cat].map((r, rIdx) => {
                     const area = (r.l * M_TO_FT) * (r.b * M_TO_FT);
                     const eff = area * mult;
@@ -965,7 +975,7 @@
               <div class="row-card-top">
                 <input type="number" step="0.01" placeholder="L (m)" value="${r.l || ''}" oninput="updateRowField(${fIdx}, '${cat}', ${rIdx}, 'l', this.value)">
                 <input type="number" step="0.01" placeholder="B (m)" value="${r.b || ''}" oninput="updateRowField(${fIdx}, '${cat}', ${rIdx}, 'b', this.value)">
-                <button class="btn btn-danger btn-sm" onclick="removeRow(${fIdx},'${cat}',${rIdx})">×</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(${fIdx},'${cat}',${rIdx})">×</button>
               </div>
               <div class="row-card-sub">
                 <span>Area: <strong class="mono" id="${cat}-area-${fIdx}-${rIdx}">${area.toFixed(1)}</strong> sqft</span>
@@ -975,6 +985,7 @@
           `;
                 }).join('');
 
+                // Borders
                 const borderCards = fl.borders.map((r, rIdx) => {
                     const direct = r.l * M_TO_FT;
                     fGrossSqft += direct;
@@ -982,7 +993,7 @@
             <div class="row-card">
               <div class="row-card-top">
                 <input type="number" step="0.01" placeholder="Length (m)" value="${r.l || ''}" oninput="updateRowField(${fIdx}, 'borders', ${rIdx}, 'l', this.value)">
-                <button class="btn btn-danger btn-sm" onclick="removeRow(${fIdx},'borders',${rIdx})">×</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(${fIdx},'borders',${rIdx})">×</button>
               </div>
               <div class="row-card-sub">
                 <span>Direct ft Conversion</span>
@@ -992,6 +1003,7 @@
           `;
                 }).join('');
 
+                // Deductions
                 const deductionCards = fl.deductions.map((r, rIdx) => {
                     const cutArea = (r.l * M_TO_FT) * (r.b * M_TO_FT);
                     fDeductSqft += cutArea;
@@ -1001,7 +1013,7 @@
                 <input type="number" step="0.01" placeholder="Cut L (m)" value="${r.l || ''}" oninput="updateRowField(${fIdx}, 'deductions', ${rIdx}, 'l', this.value)">
                 <input type="number" step="0.01" placeholder="Cut B (m)" value="${r.b || ''}" oninput="updateRowField(${fIdx}, 'deductions', ${rIdx}, 'b', this.value)">
                 <input type="text" placeholder="Note (e.g. Step Cut)" value="${r.note || ''}" oninput="updateRowField(${fIdx}, 'deductions', ${rIdx}, 'note', this.value)" style="flex:1;">
-                <button class="btn btn-danger btn-sm" onclick="removeRow(${fIdx},'deductions',${rIdx})">×</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(${fIdx},'deductions',${rIdx})">×</button>
               </div>
               <div class="row-card-sub">
                 <span>Corner/Void Cutout</span>
@@ -1017,49 +1029,49 @@
                 return `
           <div class="card">
             <div class="floor-head">
-              <input type="text" value="${fl.name}" style="background:transparent; border:none; font-size:1.05rem; font-weight:700; color:var(--text); width:150px;" onchange="getActiveSite().floors[${fIdx}].name=this.value; saveCurrentData();">
-              <button class="btn btn-danger btn-sm" onclick="getActiveSite().floors.splice(${fIdx},1); saveCurrentData(); renderFloors();">Delete Floor</button>
+              <input type="text" value="${fl.name}" style="background:transparent; border:none; font-size:1.05rem; font-weight:700; color:var(--text); width:150px;" onchange="updateFloorName(${fIdx}, this.value)">
+              <button type="button" class="btn btn-danger btn-sm" onclick="deleteFloor(${fIdx})">Delete Floor</button>
             </div>
 
             <div class="subcat-label">
               <span>Slabs (${fl.slabs.length})</span>
-              <button class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'slabs')">+ Add</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'slabs')">+ Add</button>
             </div>
             ${slabCards || '<div style="color:var(--text-muted); font-size:0.75rem;">No slabs</div>'}
 
             <div class="subcat-label">
               <span>Beams ×2 (${fl.beams.length})</span>
-              <button class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'beams')">+ Add</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'beams')">+ Add</button>
             </div>
             ${makeStdCards('beams', 2) || '<div style="color:var(--text-muted); font-size:0.75rem;">No beams</div>'}
 
             <div class="subcat-label">
               <span>Lintels ×1.5 (${fl.lintels.length})</span>
-              <button class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'lintels')">+ Add</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'lintels')">+ Add</button>
             </div>
             ${makeStdCards('lintels', 1.5) || '<div style="color:var(--text-muted); font-size:0.75rem;">No lintels</div>'}
 
             <div class="subcat-label">
               <span>Sunshades ×1 (${fl.sunshades.length})</span>
-              <button class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'sunshades')">+ Add</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'sunshades')">+ Add</button>
             </div>
             ${makeStdCards('sunshades', 1) || '<div style="color:var(--text-muted); font-size:0.75rem;">No sunshades</div>'}
 
             <div class="subcat-label">
               <span>Layers ×1 (${fl.layers.length})</span>
-              <button class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'layers')">+ Add</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'layers')">+ Add</button>
             </div>
             ${makeStdCards('layers', 1) || '<div style="color:var(--text-muted); font-size:0.75rem;">No layers</div>'}
 
             <div class="subcat-label">
               <span>Borders (${fl.borders.length})</span>
-              <button class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'borders')">+ Add</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addRow(${fIdx}, 'borders')">+ Add</button>
             </div>
             ${borderCards || '<div style="color:var(--text-muted); font-size:0.75rem;">No borders</div>'}
 
             <div class="subcat-label deduction-label">
               <span>✂️ Corner Deductions / Cuts (${fl.deductions.length})</span>
-              <button class="btn btn-danger btn-sm" onclick="addRow(${fIdx}, 'deductions')">+ Minus Cut</button>
+              <button type="button" class="btn btn-danger btn-sm" onclick="addRow(${fIdx}, 'deductions')">+ Minus Cut</button>
             </div>
             ${deductionCards || '<div style="color:var(--text-muted); font-size:0.75rem;">No corner deductions</div>'}
 
@@ -1078,7 +1090,7 @@
               </div>
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:0.8rem; color:var(--text-muted);">Rate (₹/sqft):</span>
-                <input type="number" value="${fl.rate}" style="width:100px; height:34px;" oninput="getActiveSite().floors[${fIdx}].rate=parseFloat(this.value)||0; recalculate();">
+                <input type="number" value="${fl.rate}" style="width:100px; height:34px;" oninput="updateFloorRate(${fIdx}, this.value)">
               </div>
               <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed var(--border); padding-top:6px;">
                 <span style="font-size:0.85rem; font-weight:700;">Floor Total Cost:</span>
@@ -1095,35 +1107,27 @@
         function renderPillars() {
             const site = getActiveSite();
             const wrap = document.getElementById('pillars-list');
+            if (!wrap) return;
+
             wrap.innerHTML = site.pillars.map((p, idx) => `
         <div style="display:flex; gap:6px; margin-bottom:6px;">
-          <input type="number" value="${p}" style="flex:1;" oninput="getActiveSite().pillars[${idx}]=parseFloat(this.value)||0; recalculate();">
-          <button class="btn btn-danger btn-sm" onclick="getActiveSite().pillars.splice(${idx},1); recalculate(); renderPillars();">×</button>
+          <input type="number" value="${p}" style="flex:1;" oninput="updatePillarVal(${idx}, this.value)">
+          <button type="button" class="btn btn-danger btn-sm" onclick="deletePillar(${idx})">×</button>
         </div>
       `).join('');
-        }
-
-        function addPillar() {
-            getActiveSite().pillars.push(0);
-            renderPillars();
-            recalculate();
         }
 
         function renderSteps() {
             const site = getActiveSite();
             const wrap = document.getElementById('steps-list');
+            if (!wrap) return;
+
             wrap.innerHTML = site.steps.map((s, idx) => `
         <div style="display:flex; gap:6px; margin-bottom:6px;">
-          <input type="number" value="${s}" style="flex:1;" oninput="getActiveSite().steps[${idx}]=parseFloat(this.value)||0; recalculate();">
-          <button class="btn btn-danger btn-sm" onclick="getActiveSite().steps.splice(${idx},1); recalculate(); renderSteps();">×</button>
+          <input type="number" value="${s}" style="flex:1;" oninput="updateStepVal(${idx}, this.value)">
+          <button type="button" class="btn btn-danger btn-sm" onclick="deleteStep(${idx})">×</button>
         </div>
       `).join('');
-        }
-
-        function addStep() {
-            getActiveSite().steps.push(0);
-            renderSteps();
-            recalculate();
         }
 
         function calculateSiteGrandTotal(site) {
@@ -1133,7 +1137,7 @@
                 let fDeduct = 0;
 
                 (fl.slabs || []).forEach(r => {
-                    const mObj = site.slabMultipliers.find(item => item.id === r.thick);
+                    const mObj = (site.slabMultipliers || []).find(item => item.id === r.thick);
                     fGross += ((r.l * M_TO_FT) * (r.b * M_TO_FT)) * (mObj ? mObj.multiplier : 1.0);
                 });
                 (fl.beams || []).forEach(r => fGross += ((r.l * M_TO_FT) * (r.b * M_TO_FT)) * 2);
@@ -1352,7 +1356,8 @@
             if (nEl) nEl.value = site.meta.invNo || 'EST-101';
             if (dEl) dEl.value = site.meta.date || '';
 
-            document.getElementById('headerActiveDraftName').textContent = `Site: ${site.meta.client || 'Draft'}`;
+            const hName = document.getElementById('headerActiveDraftName');
+            if (hName) hName.textContent = `Site: ${site.meta.client || 'Draft'}`;
 
             renderMultipliers();
             renderFloors();
@@ -1361,108 +1366,238 @@
             recalculate();
         }
 
-        /* ================= STANDALONE FIREBASE CONSOLE SYNC ================= */
-        function generateRandomProject() {
-            const words = ["apex", "solid", "metro", "builder", "stone", "concrete", "struct", "core"];
-            const r = Math.floor(Math.random() * 900) + 100;
-            const code = `${words[Math.floor(Math.random() * words.length)]}-works-${r}`;
-            document.getElementById('cloudProjectName').value = code;
+        /* Saved Sites System */
+        function renderDraftsList() {
+            const wrap = document.getElementById('drafts-list-container');
+            if (!wrap) return;
+            wrap.innerHTML = '';
+
+            siteDrafts.forEach(draft => {
+                const isActive = draft.id === activeSiteId;
+                const total = calculateSiteGrandTotal(draft);
+
+                const div = document.createElement('div');
+                div.className = `draft-item ${isActive ? 'active-draft' : ''}`;
+                div.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div style="font-weight:700; font-size:0.95rem; color:var(--text);">${draft.meta.client || 'Untitled Site'}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">${draft.meta.site || 'No location set'} • ${draft.meta.date || ''}</div>
+            </div>
+            <div style="text-align:right;">
+              <span class="mono" style="font-size:1.05rem; font-weight:700; color:var(--success);">₹${total.toLocaleString('en-IN')}</span>
+              <div style="font-size:0.68rem; color:var(--text-muted);">${draft.floors.length} Floors</div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:6px; margin-top:4px;">
+            <button type="button" class="btn btn-primary btn-sm" style="flex:1;" onclick="loadDraft('${draft.id}')">
+              ${isActive ? 'Editing Current' : 'Load / Edit'}
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="duplicateDraft('${draft.id}')">Copy</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="deleteDraft('${draft.id}')" ${siteDrafts.length <= 1 ? 'disabled' : ''}>Delete</button>
+          </div>
+        `;
+                wrap.appendChild(div);
+            });
         }
 
+        function loadDraft(id) {
+            activeSiteId = id;
+            localStorage.setItem('concrete_clean_active_id', activeSiteId);
+            renderAll();
+            setTab('edit');
+            showToast('Loaded site draft');
+        }
+
+        function createNewBlankSite() {
+            const name = prompt('Enter new site or client name:', 'New Site');
+            if (!name) return;
+
+            const newSite = getDefaultSite(name);
+            siteDrafts.unshift(newSite);
+            activeSiteId = newSite.id;
+            saveCurrentData();
+            renderAll();
+            setTab('edit');
+            showToast('New site draft created');
+        }
+
+        function saveAsNewDraft() {
+            const current = getActiveSite();
+            const newName = prompt('Save copy as new site name:', (current.meta.client || 'Site') + ' (Copy)');
+            if (!newName) return;
+
+            const copy = JSON.parse(JSON.stringify(current));
+            copy.id = 'site_' + Date.now();
+            copy.meta.client = newName;
+            copy.updatedAt = Date.now();
+
+            siteDrafts.unshift(copy);
+            activeSiteId = copy.id;
+            saveCurrentData();
+            renderAll();
+            showToast('Saved copy as draft');
+        }
+
+        function duplicateDraft(id) {
+            const source = siteDrafts.find(s => s.id === id);
+            if (!source) return;
+
+            const copy = JSON.parse(JSON.stringify(source));
+            copy.id = 'site_' + Date.now();
+            copy.meta.client = (source.meta.client || 'Site') + ' (Copy)';
+            copy.updatedAt = Date.now();
+
+            siteDrafts.unshift(copy);
+            saveCurrentData();
+            renderDraftsList();
+            showToast('Draft duplicated');
+        }
+
+        function deleteDraft(id) {
+            if (siteDrafts.length <= 1) {
+                alert('You must have at least one site draft.');
+                return;
+            }
+            if (!confirm('Are you sure you want to delete this site draft?')) return;
+
+            siteDrafts = siteDrafts.filter(s => s.id !== id);
+            if (activeSiteId === id) activeSiteId = siteDrafts[0].id;
+            saveCurrentData();
+            renderAll();
+            renderDraftsList();
+            showToast('Site draft deleted');
+        }
+
+        /* Firebase Sync Engine */
         function connectFirebase() {
             const pName = document.getElementById('cloudProjectName').value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "");
-            const dbUrl = document.getElementById('cloudDbUrl').value.trim();
+            let dbUrl = document.getElementById('cloudDbUrl').value.trim();
 
             if (!pName) {
-                alert("Please enter a Project or Company Name for Firebase storage.");
+                alert("Please enter a Project / Company Name.");
                 return;
             }
 
-            firebaseConfig.projectName = pName;
-            firebaseConfig.dbUrl = dbUrl;
-            localStorage.setItem('concrete_standalone_fb_config', JSON.stringify(firebaseConfig));
+            if (dbUrl.endsWith('/')) {
+                dbUrl = dbUrl.slice(0, -1);
+            }
+
+            if (!dbUrl || !dbUrl.startsWith('https://')) {
+                alert("Please enter a valid Firebase URL starting with https://");
+                return;
+            }
+
+            localStorage.setItem('concrete_app_config', JSON.stringify({ projectName: pName, dbUrl: dbUrl }));
+
+            const statusLabel = document.getElementById('cloudStatusLabel');
+            statusLabel.innerText = "Connecting...";
+            statusLabel.style.color = "var(--text-muted)";
 
             try {
-                const urlToUse = dbUrl || "https://crew-attendance-e2e4b-default-rtdb.firebaseio.com/";
-                firebase.initializeApp({ databaseURL: urlToUse }, "concrete-app-" + Date.now());
-                firebaseDb = firebase.app(firebase.apps[firebase.apps.length - 1].name).database();
+                const appName = "concrete-app-instance";
+                let app = firebase.apps.find(a => a.name === appName);
+                if (!app) {
+                    app = firebase.initializeApp({ databaseURL: dbUrl }, appName);
+                }
 
-                document.getElementById('cloudStatusLabel').innerText = "Connecting to Firebase...";
+                firebaseDb = app.database();
+
+                firebaseDb.ref(".info/connected").on("value", (snap) => {
+                    const isOnline = snap.val() === true;
+                    const dot = document.getElementById('headerSyncDot');
+                    const headerText = document.getElementById('headerSyncText');
+
+                    if (isOnline) {
+                        statusLabel.innerText = "Connected & Synced";
+                        statusLabel.style.color = "var(--success)";
+                        dot.className = "sync-dot online";
+                        headerText.innerText = pName;
+                    } else {
+                        statusLabel.innerText = "Connecting...";
+                        statusLabel.style.color = "var(--text-muted)";
+                        dot.className = "sync-dot";
+                    }
+                });
+
                 document.getElementById('cloudActivePath').innerText = `concrete_sites/${pName}/siteDrafts`;
 
                 const ref = firebaseDb.ref(`concrete_sites/${pName}/siteDrafts`);
 
-                ref.once('value').then(snap => {
-                    const cloudDrafts = snap.val();
-                    if (cloudDrafts && Array.isArray(cloudDrafts) && cloudDrafts.length > 0) {
-                        const restore = confirm(`Found ${cloudDrafts.length} site draft(s) on Firebase Console under "${pName}".\n\nClick [OK] to load drafts from Firebase.\nClick [Cancel] to overwrite Firebase with local device drafts.`);
-                        if (restore) {
-                            siteDrafts = cloudDrafts;
-                            activeSiteId = siteDrafts[0].id;
-                            localStorage.setItem('concrete_all_site_drafts', JSON.stringify(siteDrafts));
-                            localStorage.setItem('concrete_active_site_id', activeSiteId);
-                            renderAll();
-                            showToast("Loaded drafts from Firebase!");
+                ref.once('value')
+                    .then(snap => {
+                        const cloudDrafts = snap.val();
+                        if (cloudDrafts && Array.isArray(cloudDrafts) && cloudDrafts.length > 0) {
+                            if (confirm(`Found ${cloudDrafts.length} site draft(s) on Firebase for "${pName}". Load them now?`)) {
+                                siteDrafts = cloudDrafts;
+                                activeSiteId = siteDrafts[0].id;
+                                siteDrafts.forEach(ensureSiteStructure);
+                                renderAll();
+                                showToast("Loaded from Firebase!");
+                            } else {
+                                pushToFirebase();
+                            }
                         } else {
                             pushToFirebase();
                         }
-                    } else {
-                        pushToFirebase();
-                    }
 
-                    if (cloudListener) ref.off('value', cloudListener);
-                    cloudListener = ref.on('value', snapshot => {
-                        const data = snapshot.val();
-                        if (data && JSON.stringify(data) !== JSON.stringify(siteDrafts)) {
-                            siteDrafts = data;
-                            if (!siteDrafts.some(s => s.id === activeSiteId)) {
-                                activeSiteId = siteDrafts[0].id;
+                        if (cloudListener) ref.off('value', cloudListener);
+                        cloudListener = ref.on('value', (snapshot) => {
+                            const data = snapshot.val();
+                            if (data && JSON.stringify(data) !== JSON.stringify(siteDrafts)) {
+                                siteDrafts = data;
+                                if (!siteDrafts.some(s => s.id === activeSiteId)) {
+                                    activeSiteId = siteDrafts[0].id;
+                                }
+                                siteDrafts.forEach(ensureSiteStructure);
+                                localStorage.setItem('concrete_clean_drafts_v5', JSON.stringify(siteDrafts));
+                                renderAll();
+                                showToast("Sync: Cloud Updated");
                             }
-                            localStorage.setItem('concrete_all_site_drafts', JSON.stringify(siteDrafts));
-                            localStorage.setItem('concrete_active_site_id', activeSiteId);
-                            renderAll();
-                            showToast("Sync: Drafts updated from Firebase");
+                        });
+                    })
+                    .catch(err => {
+                        console.error("Firebase read error:", err);
+                        statusLabel.innerText = "Error: " + err.message;
+                        statusLabel.style.color = "var(--danger)";
+                        if (err.message.includes("permission_denied") || err.code === "PERMISSION_DENIED") {
+                            alert("Permission Denied: Your Firebase Database Rules are locked!\n\nOpen Firebase Console -> Realtime Database -> Rules, set '.read': true and '.write': true, then click Publish.");
                         }
                     });
 
-                    document.getElementById('cloudStatusLabel').innerText = "Online (Connected)";
-                    document.getElementById('cloudStatusLabel').style.color = "var(--success)";
-                    document.getElementById('headerSyncDot').className = "sync-dot online";
-                    document.getElementById('headerSyncText').innerText = pName;
-                }).catch(err => {
-                    console.error(err);
-                    document.getElementById('cloudStatusLabel').innerText = "Connection Failed";
-                    document.getElementById('cloudStatusLabel').style.color = "var(--danger)";
-                });
-
             } catch (err) {
-                console.error(err);
-                alert("Firebase initialization failed. Verify your database URL.");
+                console.error("Firebase initialization crash:", err);
+                statusLabel.innerText = "Init Failed";
+                statusLabel.style.color = "var(--danger)";
             }
         }
 
         function pushToFirebase() {
-            if (!firebaseDb || !firebaseConfig.projectName) return;
-            firebaseDb.ref(`concrete_sites/${firebaseConfig.projectName}/siteDrafts`).set(siteDrafts)
-                .catch(console.error);
+            if (!firebaseDb) return;
+            const pName = document.getElementById('cloudProjectName').value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "");
+            if (!pName) return;
+
+            firebaseDb.ref(`concrete_sites/${pName}/siteDrafts`).set(siteDrafts)
+                .catch(err => console.error("Firebase write error:", err));
         }
 
         function disconnectFirebase() {
-            if (confirm("Disconnect from Firebase sync? Local drafts will remain saved on this device.")) {
-                if (firebaseDb && firebaseConfig.projectName && cloudListener) {
-                    firebaseDb.ref(`concrete_sites/${firebaseConfig.projectName}/siteDrafts`).off('value', cloudListener);
+            if (firebaseDb) {
+                const pName = document.getElementById('cloudProjectName').value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "");
+                if (pName && cloudListener) {
+                    firebaseDb.ref(`concrete_sites/${pName}/siteDrafts`).off('value', cloudListener);
                 }
-                firebaseConfig.projectName = '';
-                localStorage.setItem('concrete_standalone_fb_config', JSON.stringify(firebaseConfig));
-
-                document.getElementById('cloudProjectName').value = '';
-                document.getElementById('cloudStatusLabel').innerText = "Not Connected";
-                document.getElementById('cloudStatusLabel').style.color = "var(--text-muted)";
-                document.getElementById('cloudActivePath').innerText = "None";
-                document.getElementById('headerSyncDot').className = "sync-dot";
-                document.getElementById('headerSyncText').innerText = "Local";
-                showToast("Disconnected from Cloud");
             }
+            firebaseDb = null;
+            cloudListener = null;
+
+            document.getElementById('cloudStatusLabel').innerText = "Not Connected";
+            document.getElementById('cloudStatusLabel').style.color = "var(--text-muted)";
+            document.getElementById('cloudActivePath').innerText = "None";
+            document.getElementById('headerSyncDot').className = "sync-dot";
+            document.getElementById('headerSyncText').innerText = "Local";
+            showToast("Disconnected");
         }
 
         window.addEventListener('DOMContentLoaded', init);
